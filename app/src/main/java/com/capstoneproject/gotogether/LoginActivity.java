@@ -35,7 +35,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     CallbackManager callbackManager;
     ILoginPresenter iLoginPresenter;
     TextView textView;
-//    LoginPresenter loginPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,41 +43,34 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
         setContentView(R.layout.activity_login);
 
         textView = (TextView) findViewById(R.id.textView);
-        textView.setText("BBBB");
         callbackManager = CallbackManager.Factory.create();
         btnLogin = (LoginButton) findViewById(R.id.login_button);
         btnLogin.setReadPermissions(Arrays.asList(
                 "public_profile", "email", "user_birthday", "user_friends"));
 
+        iLoginPresenter = new LoginPresenter(this);
 
         btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-//                try{
-//                    iLoginPresenter.onSuccess();
-//                }
-//                catch(Exception e){
-//                    Log.e("Loi: ", e.getMessage());
-//                }
-//                Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
+                iLoginPresenter.onSuccess();
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
-                                try {
-                                    iLoginPresenter.onSuccess(object);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                //
                             }
                         });
-
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,name,email,gender,birthday");
+                request.setParameters(parameters);
+                request.executeAsync();
             }
 
             @Override
             public void onCancel() {
-               // Toast.makeText(getApplicationContext(),"Cancel",Toast.LENGTH_SHORT).show();
+                iLoginPresenter.onCancel();
             }
 
             @Override
@@ -95,7 +87,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     @Override
     public void loginChangeIten() {
         Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
-        textView.setText("AAAA");
     }
 
     @Override
