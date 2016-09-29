@@ -9,7 +9,7 @@ import org.json.JSONObject;
  */
 public interface ILoginPresenter {
 
-    public void onSuccess();
+    public void onSuccess(String id);
     public void onCancel();
     public void onError();
 }

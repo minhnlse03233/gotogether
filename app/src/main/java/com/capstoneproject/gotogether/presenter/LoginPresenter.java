@@ -18,8 +18,8 @@ public class LoginPresenter implements ILoginPresenter, ILoginResult {
     }
 
     @Override
-    public void onSuccess(){
-        iLoginView.loginChangeIten();
+    public void onSuccess(String id){
+        iLoginView.loginChangeIten(id);
         iLoginUser.loginSuccess();
     }
 
@@ -35,7 +35,7 @@ public class LoginPresenter implements ILoginPresenter, ILoginResult {
 
     @Override
     public void loginSuccess() {
-        iLoginView.loginChangeIten();
+
     }
 
     @Override
