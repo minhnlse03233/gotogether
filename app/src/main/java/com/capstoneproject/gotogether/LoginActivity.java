@@ -1,13 +1,11 @@
 package com.capstoneproject.gotogether;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
+import android.telephony.TelephonyManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,9 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity implements ILoginView {
@@ -42,7 +37,8 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     CallbackManager callbackManager;
     ILoginPresenter iLoginPresenter;
     TextView textView;
-    String status;
+    String name, emaill;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +47,17 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
         setContentView(R.layout.activity_login);
 
         textView = (TextView) findViewById(R.id.textView);
+        // gọi call back facebook
         callbackManager = CallbackManager.Factory.create();
         btnLogin = (LoginButton) findViewById(R.id.login_button);
+
+        // set đọc quyền đc lấy thông tin email, profile...
         btnLogin.setReadPermissions(Arrays.asList(
                 "public_profile", "email", "user_birthday", "user_friends"));
 
         iLoginPresenter = new LoginPresenter(this);
+
+
 
         btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -68,8 +69,11 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                             public void onCompleted(JSONObject object, GraphResponse response) {
                                 try {
                                     String id = object.getString("id");
+
+                                    name = object.getString("name");
+                                    emaill = object.getString("email");
+
                                     iLoginPresenter.onSuccess(id);
-                                    //textView.setText(id);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -142,10 +146,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
     private void showJSON(String response){
         String id = "";
-        String fullname = "";
-        String gender = "";
-        String phonenumber = "";
-//        String users = "";
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray result = jsonObject.getJSONArray("users");
@@ -153,10 +153,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
             for (int i = 0; i < result.length(); i++){
                 JSONObject collegeData = result.getJSONObject(i);
                 id = collegeData.getString("userId");
-                fullname = collegeData.getString("fullname");
-                gender = collegeData.getString("gender");
-                phonenumber = collegeData.getString("phonenumber");
-//                users += "Id:\t"+id+"\nFullname:\t" +fullname+ "\nGender:\t"+ gender + "\nPhonenumber:\t"+ phonenumber + "\n\n";
             }
 
         } catch (JSONException e) {
@@ -165,8 +161,25 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
         if(id.equals("")){
             //Tài khoản chưa đăng ký
+
+            //truyền dữ liệu sang fragment
+            Bundle bundle = new Bundle();
+            bundle.putString("name", name );
+            bundle.putString("email", emaill);
+            AddInfoFragment addInfoFragment = new AddInfoFragment();
+            FragmentManager fragmentManager =  getSupportFragmentManager();
+            addInfoFragment.setArguments(bundle);
+
+            // call fragment
+            fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
+            Toast.makeText(getApplicationContext(),"Đăng nhập lần đầu, vui lòng điền thông tin cá nhân để sử dụng dịch vụ.",Toast.LENGTH_LONG).show();
+
+
         }else {
            //Tài khoản đã đăng ký
+            // intent sang activity main
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
         }
     }
 
