@@ -17,6 +17,7 @@ import com.android.volley.toolbox.Volley;
 import com.capstoneproject.gotogether.presenter.ILoginPresenter;
 import com.capstoneproject.gotogether.presenter.LoginPresenter;
 import com.capstoneproject.gotogether.view.ILoginView;
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -37,7 +38,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     CallbackManager callbackManager;
     ILoginPresenter iLoginPresenter;
     TextView textView;
-    String name, emaill;
+    String id,name, emaill, gender;
 
 
     @Override
@@ -59,42 +60,52 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
 
 
-        btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                try {
-                                    String id = object.getString("id");
 
-                                    name = object.getString("name");
-                                    emaill = object.getString("email");
 
-                                    iLoginPresenter.onSuccess(id);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+
+        if (AccessToken.getCurrentAccessToken() == null) {
+            btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    GraphRequest request = GraphRequest.newMeRequest(
+                            loginResult.getAccessToken(),
+                            new GraphRequest.GraphJSONObjectCallback() {
+                                @Override
+                                public void onCompleted(JSONObject object, GraphResponse response) {
+                                    try {
+                                        id = object.getString("id");
+                                        gender = object.getString("gender");
+                                        name = object.getString("name");
+                                        emaill = object.getString("email");
+
+                                        iLoginPresenter.onSuccess(id);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender,birthday");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
+                            });
+                    Bundle parameters = new Bundle();
+                    parameters.putString("fields", "id,name,email,gender,birthday");
+                    request.setParameters(parameters);
+                    request.executeAsync();
+                }
 
-            @Override
-            public void onCancel() {
-                iLoginPresenter.onCancel();
-            }
+                @Override
+                public void onCancel() {
+                    iLoginPresenter.onCancel();
+                }
 
-            @Override
-            public void onError(FacebookException error) {
-                iLoginPresenter.onError();
-            }
-        });
+                @Override
+                public void onError(FacebookException error) {
+                    iLoginPresenter.onError();
+                }
+            });
+
+        } else {
+
+            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
 
     }
 
@@ -166,6 +177,8 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
             Bundle bundle = new Bundle();
             bundle.putString("name", name );
             bundle.putString("email", emaill);
+            bundle.putString("id",id);
+            bundle.putString("gender",gender);
             AddInfoFragment addInfoFragment = new AddInfoFragment();
             FragmentManager fragmentManager =  getSupportFragmentManager();
             addInfoFragment.setArguments(bundle);
