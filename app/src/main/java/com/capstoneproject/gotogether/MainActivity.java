@@ -13,11 +13,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.facebook.login.LoginManager;
+import com.facebook.login.widget.ProfilePictureView;
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    String id,name,email;
+    ProfilePictureView profilePictureView;
+    TextView txtName, txtEmail, txtTest;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +53,28 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // nhận intent
+        Intent intent = getIntent();
+        Bundle bundle = intent.getBundleExtra("profile");
+
+        View headerView = navigationView.getHeaderView(0);
+        txtName = (TextView) headerView.findViewById(R.id.txtName);
+        txtEmail = (TextView) headerView.findViewById(R.id.txtEmail);
+
+        // get data từ intent (Login activity)
+        id = bundle.getString("id");
+        name = bundle.getString("name");
+        email = bundle.getString("email");
+
+
+        ImageView profilePic = (ImageView) headerView.findViewById(R.id.imageView);
+        // tranform từ image facebook sang imageView. Hiển thị ảnh hình tròn lên navigation
+        Picasso.with(this).load("https://graph.facebook.com/v2.7/" + id + "/picture?height=120&type=small").transform(new CircleTransform()).resize(65, 70).into(profilePic);
+        txtName.setText(name);
+        txtEmail.setText(email);
+
+
     }
 
     private void goLoginScreen() {

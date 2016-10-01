@@ -115,8 +115,6 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
         }
 
 
-
-
         return v;
 
     }
@@ -144,13 +142,8 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
                         Toast.makeText(getContext(), "Hãy nhập SĐT", Toast.LENGTH_SHORT).show();
                         break;
                     }
-                    if (address.equals("") ) {
-                        Toast.makeText(getContext(), "Hãy nhập địa chỉ của bạn", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (email.equals("") ) {
-                        Toast.makeText(getContext(), "Hãy nhập email của bạn", Toast.LENGTH_SHORT).show();
-                        break;
+                    if (email == null) {
+                        email = "";
                     }
                     String type = "register";
                     BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
@@ -165,6 +158,9 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
             case R.id.btnIgnore:
                 String phonenumber1 = txtPhone.getText().toString();
                 String address1 = txtAddress.getText().toString();
+                if (email == null) {
+                    email = "";
+                }
                 String type1 = "register";
                 BackgroundWorker backgroundWorker1 = new BackgroundWorker(getContext());
                 backgroundWorker1.execute(type1,id, name, finalGender,email, address1, phonenumber1 );
