@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
 
 
-        if (AccessToken.getCurrentAccessToken() == null) {
+        //if (AccessToken.getCurrentAccessToken() == null) {
             btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
@@ -76,9 +76,9 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                                         id = object.getString("id");
                                         gender = object.getString("gender");
                                         name = object.getString("name");
-                                        emaill = object.getString("email");
 
                                         iLoginPresenter.onSuccess(id);
+                                        emaill = object.getString("email");
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
@@ -101,11 +101,11 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                 }
             });
 
-        } else {
-
-            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
+//        } else {
+//
+//            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
+//            startActivity(intent);
+//        }
 
     }
 
@@ -156,21 +156,21 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     }
 
     private void showJSON(String response){
-        String id = "";
+        String userId = "";
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray result = jsonObject.getJSONArray("users");
 
             for (int i = 0; i < result.length(); i++){
                 JSONObject collegeData = result.getJSONObject(i);
-                id = collegeData.getString("userId");
+                userId = collegeData.getString("userId");
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if(id.equals("")){
+        if(userId.equals("")){
             //Tài khoản chưa đăng ký
 
             //truyền dữ liệu sang fragment

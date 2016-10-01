@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -38,9 +39,9 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
     private String mParam2;
 
     EditText txtName,txtPhone, txtEmail, txtAddress;
-    String myValue,mPhoneNumber, email,id, gender;
+    String name,mPhoneNumber, email,id, gender;
     Button btnSave, btnIgnore;
-    RequestQueue requestQueue;
+
     String finalGender;
     String insertURL = "http://fugotogether.com/sql/insertUser.php";
     //private OnFragmentInteractionListener mListener;
@@ -86,15 +87,16 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
         View v = inflater.inflate(R.layout.fragment_add_info, container, false);
 
         // lấy giá trị từ login activity
-        myValue = this.getArguments().getString("name");
+        name = this.getArguments().getString("name");
         email = this.getArguments().getString("email");
         id = this.getArguments().getString("id");
         gender = this.getArguments().getString("gender");
 
-        if (gender.equals("female") ) {
-            finalGender = "0";
-        } else {
+
+        if (gender.equals("male") ) {
             finalGender = "1";
+        } else {
+            finalGender = "0";
         }
         // Inflate the layout for this fragment
         txtName = (EditText) v.findViewById(R.id.editName);
@@ -112,7 +114,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
 
         }
 
-        requestQueue = Volley.newRequestQueue(getContext());
+
 
 
         return v;
@@ -121,7 +123,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onResume() {
         super.onResume();
-        txtName.setText(myValue);
+        txtName.setText(name);
         txtPhone.setText(mPhoneNumber);
         txtEmail.setText(email);
     }
@@ -131,33 +133,42 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
         int wiget = v.getId();
         switch (wiget) {
             case R.id.btnSave:
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, insertURL, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
+                try{
+                    String phonenumber = txtPhone.getText().toString();
+                    String address = txtAddress.getText().toString();
+                    if(name.equals("") ) {
+                        Toast.makeText(getContext(), "Hãy nhập Tên của bạn", Toast.LENGTH_SHORT).show();
+                        break;
                     }
-                }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
+                    if(phonenumber.equals("") ) {
+                        Toast.makeText(getContext(), "Hãy nhập SĐT", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    if (address.equals("") ) {
+                        Toast.makeText(getContext(), "Hãy nhập địa chỉ của bạn", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    if (email.equals("") ) {
+                        Toast.makeText(getContext(), "Hãy nhập email của bạn", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    String type = "register";
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
+                    backgroundWorker.execute(type,id, name, finalGender,email, address, phonenumber );
+                } catch ( Exception ex) {
 
                 }
-            } ){
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> parameter = new HashMap<String, String>();
-                        parameter.put("userId",id);
-                        parameter.put("fullname", myValue);
-                        parameter.put("gender", gender);
-                        parameter.put("email", email);
-                        parameter.put("address", txtAddress.getText().toString());
-                        parameter.put("phonenumber",txtPhone.getText().toString());
-                        return parameter;
-                    }
-                };
-                requestQueue.add(stringRequest);
+
                 goToMain();
+
                 break;
             case R.id.btnIgnore:
+                String phonenumber1 = txtPhone.getText().toString();
+                String address1 = txtAddress.getText().toString();
+                String type1 = "register";
+                BackgroundWorker backgroundWorker1 = new BackgroundWorker(getContext());
+                backgroundWorker1.execute(type1,id, name, finalGender,email, address1, phonenumber1 );
+                goToMain();
                 break;
             default:
         }
