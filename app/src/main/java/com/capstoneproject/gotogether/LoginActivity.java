@@ -59,7 +59,16 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
         iLoginPresenter = new LoginPresenter(this);
 
+
 //        if (AccessToken.getCurrentAccessToken() == null) {
+
+
+
+
+
+
+        //if (AccessToken.getCurrentAccessToken() == null) {
+
             btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
@@ -72,10 +81,16 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                                         id = object.getString("id");
                                         gender = object.getString("gender");
                                         name = object.getString("name");
+
                                         //textView.setText("Thong tin: " + id + " " + gender + " " + name);
                                         iLoginPresenter.onSuccess(id);
                                         emaill = object.getString("email");
 
+
+
+
+                                        iLoginPresenter.onSuccess(id);
+                                        emaill = object.getString("email");
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -145,6 +160,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+
 //    private void getData(String id) {
 //
 //        String url = "http://fugotogether.com/sql/checkUserLogin.php?id=" + id;
@@ -204,5 +220,67 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 //            startActivity(intent);
 //        }
 //    }
+
+    private void getData(String id) {
+
+        String url = "http://fugotogether.com/sql/checkUserLogin.php?id=" + id;
+
+        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                showJSON(response);
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
+
+    private void showJSON(String response){
+        String userId = "";
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray result = jsonObject.getJSONArray("users");
+
+            for (int i = 0; i < result.length(); i++){
+                JSONObject collegeData = result.getJSONObject(i);
+                userId = collegeData.getString("userId");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if(userId.equals("")){
+            //Tài khoản chưa đăng ký
+
+            //truyền dữ liệu sang fragment
+            Bundle bundle = new Bundle();
+            bundle.putString("name", name );
+            bundle.putString("email", emaill);
+            bundle.putString("id",id);
+            bundle.putString("gender",gender);
+            AddInfoFragment addInfoFragment = new AddInfoFragment();
+            FragmentManager fragmentManager =  getSupportFragmentManager();
+            addInfoFragment.setArguments(bundle);
+
+            // call fragment
+            fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
+            Toast.makeText(getApplicationContext(),"Đăng nhập lần đầu, vui lòng điền thông tin cá nhân để sử dụng dịch vụ.",Toast.LENGTH_LONG).show();
+
+
+        }else {
+           //Tài khoản đã đăng ký
+            // intent sang activity main
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
+    }
+
 
 }
