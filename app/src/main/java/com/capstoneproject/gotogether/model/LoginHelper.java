@@ -3,6 +3,7 @@ package com.capstoneproject.gotogether.model;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
@@ -16,87 +17,112 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
 
 /**
  * Created by Nguyen Luc on 9/28/2016.
  */
-public class LoginHelper extends Activity implements ILoginUser{
+public class LoginHelper extends AsyncTask<String, Void, String> implements ILoginUser{
     ILoginResult iLoginResult;
-    private static Application instance;
-    private Context mContext;
-
-    public LoginHelper(){}
-
-    public LoginHelper(Context mContext){this.mContext = mContext;}
-
-    public static Context getContext() {
-        return instance.getApplicationContext();
-    }
+    String result;
 
     public LoginHelper(ILoginResult iLoginResult){
         this.iLoginResult = iLoginResult;
     }
 
-
-
-    @Override
-    public void loginSuccess(){
-    //    getData("1122");
-    }
+    public LoginHelper(){}
 
     @Override
-    public void loginError() {
-        iLoginResult.loginError();
-    }
+    protected String doInBackground(String... params) {
+        String id = params[0];
 
-    private void getData(String id) {
-
-        String url = "http://fugotogether.com/sql/checkUserLogin.php?id=" + id;
-
-        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                showJSON(response);
-            }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                });
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        requestQueue.add(stringRequest);
-    }
-
-    private void showJSON(String response){
-        String id = "";
-        String fullname = "";
-        String gender = "";
-        String phonenumber = "";
-//        String users = "";
         try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray result = jsonObject.getJSONArray("users");
-
-            for (int i = 0; i < result.length(); i++){
-                JSONObject collegeData = result.getJSONObject(i);
-                id = collegeData.getString("userId");
-                fullname = collegeData.getString("fullname");
-                gender = collegeData.getString("gender");
-                phonenumber = collegeData.getString("phonenumber");
-//                users += "Id:\t"+id+"\nFullname:\t" +fullname+ "\nGender:\t"+ gender + "\nPhonenumber:\t"+ phonenumber + "\n\n";
+            URL url = new URL(LoginConfig.DATA_URL);
+            HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+            String post_data = URLEncoder.encode("id","UTF-8")+"="+URLEncoder.encode(id,"UTF-8");
+            bufferedWriter.write(post_data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"iso-8859-1"));
+            String result="";
+            StringBuilder stringBuilder = new StringBuilder();
+            String line="";
+            while((line = bufferedReader.readLine())!= null) {
+                result += line;
+                stringBuilder.append(line + "\n");
             }
+            bufferedReader.close();
+            inputStream.close();
+            httpURLConnection.disconnect();
+//            iLoginResult.loginStatus("Nguoi dung chua dang cmn nhap");
+            return result;
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPreExecute() {
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        iLoginResult.loginStatus("Result: " + result);
+        String id = "";
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            JSONArray jsonArray = jsonObject.getJSONArray(LoginConfig.JSON_ARRAY);
+            if(jsonArray.length() == 0)
+                iLoginResult.loginStatus("Tai khoan chua dang nhap lan nao");
+            else
+                iLoginResult.loginStatus("Tai khoan da dang nhap n lan");
+//            JSONObject collegeData = jsonArray.getJSONObject(0);
+//            id = collegeData.getString(LoginConfig.KEY_ID);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if(id.equals("")){
-            //Tài khoản chưa đăng ký
-        }else {
-            //Tài khoản đã đăng ký
-        }
+    }
+
+    public void setResult(String result){this.result = result;}
+    public String getResult(){return result;}
+
+    @Override
+    public void loginSuccess(String id){
+        this.execute(id);
+    }
+
+    public void receiveStatus(String status){
+        iLoginResult.loginStatus(status);
+    }
+
+    @Override
+    public void loginError() {
+        iLoginResult.loginError();
     }
 
 }
