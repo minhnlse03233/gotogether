@@ -111,11 +111,11 @@
         android:layout_toEndOf="@+id/textView4" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
         android:text="ĐỒNG Ý"
         android:id="@+id/btnSave"
-        android:layout_marginBottom="39dp"
+
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/textView2"
         android:layout_toStartOf="@+id/textView2" />
