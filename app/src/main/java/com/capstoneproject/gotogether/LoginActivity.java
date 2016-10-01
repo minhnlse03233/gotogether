@@ -24,6 +24,7 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -58,12 +59,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
         iLoginPresenter = new LoginPresenter(this);
 
-
-
-
-
-
-        if (AccessToken.getCurrentAccessToken() == null) {
+//        if (AccessToken.getCurrentAccessToken() == null) {
             btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
@@ -76,14 +72,23 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                                         id = object.getString("id");
                                         gender = object.getString("gender");
                                         name = object.getString("name");
+                                        //textView.setText("Thong tin: " + id + " " + gender + " " + name);
+                                        iLoginPresenter.onSuccess(id);
                                         emaill = object.getString("email");
 
-                                        iLoginPresenter.onSuccess(id);
+
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
                                 }
                             });
+//                    textView.setText("thong tin: " + id + " " + name + " " + emaill + " " + gender);
+//                    if(id.equals(null)){
+//                        LoginManager.getInstance().logOut();
+//                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+//                        startActivity(intent);
+//                    }else
+
                     Bundle parameters = new Bundle();
                     parameters.putString("fields", "id,name,email,gender,birthday");
                     request.setParameters(parameters);
@@ -101,11 +106,11 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                 }
             });
 
-        } else {
-
-            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
+//        } else {
+//
+//            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
+//            startActivity(intent);
+//        }
 
     }
 
@@ -113,9 +118,9 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
 
     @Override
-    public void loginChangeIten(String id) {
+    public void loginChangeInten(String id) {
         Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
-        getData(id);
+        //getData(id);
     }
 
     @Override
@@ -130,70 +135,74 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     }
 
     @Override
+    public void statusUser(String status) {
+        textView.setText("Trang thai: " + status);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void getData(String id) {
-
-        String url = "http://fugotogether.com/sql/checkUserLogin.php?id=" + id;
-
-        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                showJSON(response);
-            }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                });
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
-    }
-
-    private void showJSON(String response){
-        String id = "";
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray result = jsonObject.getJSONArray("users");
-
-            for (int i = 0; i < result.length(); i++){
-                JSONObject collegeData = result.getJSONObject(i);
-                id = collegeData.getString("userId");
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        if(id.equals("")){
-            //Tài khoản chưa đăng ký
-
-            //truyền dữ liệu sang fragment
-            Bundle bundle = new Bundle();
-            bundle.putString("name", name );
-            bundle.putString("email", emaill);
-            bundle.putString("id",id);
-            bundle.putString("gender",gender);
-            AddInfoFragment addInfoFragment = new AddInfoFragment();
-            FragmentManager fragmentManager =  getSupportFragmentManager();
-            addInfoFragment.setArguments(bundle);
-
-            // call fragment
-            fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
-            Toast.makeText(getApplicationContext(),"Đăng nhập lần đầu, vui lòng điền thông tin cá nhân để sử dụng dịch vụ.",Toast.LENGTH_LONG).show();
-
-
-        }else {
-           //Tài khoản đã đăng ký
-            // intent sang activity main
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
-    }
+//    private void getData(String id) {
+//
+//        String url = "http://fugotogether.com/sql/checkUserLogin.php?id=" + id;
+//
+//        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//                showJSON(response);
+//            }
+//        },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                    }
+//                });
+//
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        requestQueue.add(stringRequest);
+//    }
+//
+//    private void showJSON(String response){
+//        String idUser = "";
+//        try {
+//            JSONObject jsonObject = new JSONObject(response);
+//            JSONArray result = jsonObject.getJSONArray("users");
+//
+//            for (int i = 0; i < result.length(); i++){
+//                JSONObject collegeData = result.getJSONObject(i);
+//                idUser = collegeData.getString("userId");
+//            }
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if(idUser.equals("")){
+//            //Tài khoản chưa đăng ký
+//            textView.setText("thong tin: " + id + " " + name + " " + emaill + " " + gender);
+//
+//            //truyền dữ liệu sang fragment
+//            Bundle bundle = new Bundle();
+//            bundle.putString("name", name );
+//            bundle.putString("email", emaill);
+//            bundle.putString("id",id);
+//            bundle.putString("gender",gender);
+//            AddInfoFragment addInfoFragment = new AddInfoFragment();
+//            FragmentManager fragmentManager =  getSupportFragmentManager();
+//            addInfoFragment.setArguments(bundle);
+//
+//            // call fragment
+////            fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
+////            Toast.makeText(getApplicationContext(),"Đăng nhập lần đầu, vui lòng điền thông tin cá nhân để sử dụng dịch vụ.",Toast.LENGTH_LONG).show();
+//        }else {
+//           //Tài khoản đã đăng ký
+//            // intent sang activity main
+//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//            startActivity(intent);
+//        }
+//    }
 
 }

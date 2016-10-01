@@ -19,8 +19,8 @@ public class LoginPresenter implements ILoginPresenter, ILoginResult {
 
     @Override
     public void onSuccess(String id){
-        iLoginView.loginChangeIten(id);
-        iLoginUser.loginSuccess();
+        iLoginView.loginChangeInten(id);
+        iLoginUser.loginSuccess(id);
     }
 
     @Override
@@ -46,5 +46,10 @@ public class LoginPresenter implements ILoginPresenter, ILoginResult {
     @Override
     public void loginError() {
         iLoginView.loginError();
+    }
+
+    @Override
+    public void loginStatus(String status) {
+        iLoginView.statusUser(status);
     }
 }
