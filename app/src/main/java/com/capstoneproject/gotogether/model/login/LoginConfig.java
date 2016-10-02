@@ -1,4 +1,4 @@
-package com.capstoneproject.gotogether.model;
+package com.capstoneproject.gotogether.model.login;
 
 /**
  * Created by MinhNL on 10/1/2016.

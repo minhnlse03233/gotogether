@@ -1,9 +1,9 @@
-package com.capstoneproject.gotogether.presenter;
+package com.capstoneproject.gotogether.presenter.login;
 
-import com.capstoneproject.gotogether.model.ILoginResult;
-import com.capstoneproject.gotogether.model.ILoginUser;
-import com.capstoneproject.gotogether.model.LoginHelper;
-import com.capstoneproject.gotogether.view.ILoginView;
+import com.capstoneproject.gotogether.model.login.ILoginResult;
+import com.capstoneproject.gotogether.model.login.ILoginUser;
+import com.capstoneproject.gotogether.model.login.LoginHelper;
+import com.capstoneproject.gotogether.view.login.ILoginView;
 
 /**
  * Created by Nguyen Luc on 9/28/2016.

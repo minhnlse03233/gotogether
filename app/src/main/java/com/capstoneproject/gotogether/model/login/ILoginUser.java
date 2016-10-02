@@ -1,4 +1,4 @@
-package com.capstoneproject.gotogether.model;
+package com.capstoneproject.gotogether.model.login;
 
 import org.json.JSONException;
 import org.json.JSONObject;

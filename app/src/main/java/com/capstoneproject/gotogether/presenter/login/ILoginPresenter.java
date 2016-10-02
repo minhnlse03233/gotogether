@@ -1,4 +1,4 @@
-package com.capstoneproject.gotogether.presenter;
+package com.capstoneproject.gotogether.presenter.login;
 
 
 import org.json.JSONException;

@@ -21,6 +21,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.capstoneproject.gotogether.model.User;
+import com.capstoneproject.gotogether.presenter.register.IRegisterPresenter;
+import com.capstoneproject.gotogether.presenter.register.RegisterPresenter;
+import com.capstoneproject.gotogether.view.register.IRegisterView;
+import com.capstoneproject.gotogether.view.register.IRegisterViewFrag;
 
 import org.json.JSONObject;
 
@@ -28,37 +33,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class AddInfoFragment extends Fragment implements View.OnClickListener{
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+public class AddInfoFragment extends Fragment implements View.OnClickListener, IRegisterViewFrag{
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     EditText txtName,txtPhone, txtEmail, txtAddress;
-    String name,mPhoneNumber, email,id, gender;
+    String name, mPhoneNumber, email,id, gender;
     Button btnSave, btnIgnore;
+    IRegisterPresenter iRegisterPresenter;
+    User userInfo;
 
     String finalGender;
     String insertURL = "http://fugotogether.com/sql/insertUser.php";
-    //private OnFragmentInteractionListener mListener;
 
-    public AddInfoFragment() {
-        // Required empty public constructor
-    }
+    public AddInfoFragment() {}
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddInfoFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static AddInfoFragment newInstance(String param1, String param2) {
         AddInfoFragment fragment = new AddInfoFragment();
         Bundle args = new Bundle();
@@ -86,6 +79,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_add_info, container, false);
 
+        iRegisterPresenter = new RegisterPresenter(this);
         // lấy giá trị từ login activity
         name = this.getArguments().getString("name");
         email = this.getArguments().getString("email");
@@ -99,6 +93,8 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
             finalGender = "0";
         }
         // Inflate the layout for this fragment
+        iRegisterPresenter = new RegisterPresenter(this);
+
         txtName = (EditText) v.findViewById(R.id.editName);
         txtEmail = (EditText) v.findViewById(R.id.editEmail);
         txtPhone = (EditText) v.findViewById(R.id.editPhone);
@@ -118,6 +114,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
         return v;
 
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -148,11 +145,10 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
                     String type = "register";
                     BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
                     backgroundWorker.execute(type,id, name, finalGender,email, address, phonenumber );
-                } catch ( Exception ex) {
+                    bundleToMain(id, name, email);
+                } catch ( Exception ex) {}
 
-                }
-
-                goToMain();
+//                goToMain();
 
                 break;
             case R.id.btnIgnore:
@@ -164,55 +160,35 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener{
                 String type1 = "register";
                 BackgroundWorker backgroundWorker1 = new BackgroundWorker(getContext());
                 backgroundWorker1.execute(type1,id, name, finalGender,email, address1, phonenumber1 );
-                goToMain();
+                bundleToMain(id, name, email);
                 break;
             default:
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
-//
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-//    public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        void onFragmentInteraction(Uri uri);
-//    }
     public void goToMain () {
         Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
-
     }
 
+    public void bundleToMain(String id, String name, String email){
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("id", id);
+        bundle.putString("name", name);
+        bundle.putString("email", email);
+        intent.putExtra("profile", bundle);
+        startActivity(intent);
+        
+    }
 
+    @Override
+    public void receiveUserFromLoginFrag(User userInfo) {
+        Toast.makeText(getContext(), "OK bo nhan dc roi nhe", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void receivedAction() {
+        Toast.makeText(getContext(), "OK", Toast.LENGTH_SHORT).show();
+    }
 }
