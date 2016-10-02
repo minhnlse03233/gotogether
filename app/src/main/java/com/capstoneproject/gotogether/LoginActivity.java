@@ -1,22 +1,20 @@
 package com.capstoneproject.gotogether;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.capstoneproject.gotogether.presenter.ILoginPresenter;
-import com.capstoneproject.gotogether.presenter.LoginPresenter;
-import com.capstoneproject.gotogether.view.ILoginView;
+import com.capstoneproject.gotogether.model.User;
+import com.capstoneproject.gotogether.presenter.login.ILoginPresenter;
+import com.capstoneproject.gotogether.presenter.login.LoginPresenter;
+import com.capstoneproject.gotogether.presenter.register.IRegisterPresenter;
+import com.capstoneproject.gotogether.presenter.register.RegisterPresenter;
+import com.capstoneproject.gotogether.view.login.ILoginView;
+import com.capstoneproject.gotogether.view.register.IRegisterView;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -28,19 +26,22 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity implements ILoginView {
+public class LoginActivity extends AppCompatActivity implements ILoginView, IRegisterView {
     LoginButton btnLogin;
     CallbackManager callbackManager;
     ILoginPresenter iLoginPresenter;
+    IRegisterPresenter iRegisterPresenter;
     TextView textView;
     String id,name, emaill, gender;
-
+    int genderInt;
+    BigInteger userId;
+    boolean isRegister = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +51,10 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
             public void onInitialized() {
                 if(AccessToken.getCurrentAccessToken() == null){
                     System.out.println("not logged in yet");
-                    Toast.makeText(getApplicationContext(),"id la:" +id,Toast.LENGTH_SHORT).show();
+
                 } else {
                     System.out.println("Logged in");
-                    Toast.makeText(getApplicationContext(),"bố đăng nhập rồi:" +id,Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
@@ -69,6 +70,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
                 "public_profile", "email", "user_birthday", "user_friends"));
 
         iLoginPresenter = new LoginPresenter(this);
+        iRegisterPresenter = new RegisterPresenter(this);
 
 
         //if (AccessToken.getCurrentAccessToken() == null) {
@@ -125,8 +127,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
 
     @Override
     public void loginChangeInten(String id) {
-        Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
-        //getData(id);
+        //Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -143,27 +144,29 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
     @Override
     public void statusUser(String status) {
         if (status.equals("NoActive")) {
-            //truyền dữ liệu sang fragment
-            Bundle bundle = new Bundle();
-            bundle.putString("name", name );
-            bundle.putString("email", emaill);
-            bundle.putString("id",id);
-            bundle.putString("gender",gender);
-            AddInfoFragment addInfoFragment = new AddInfoFragment();
-            FragmentManager fragmentManager =  getSupportFragmentManager();
-            addInfoFragment.setArguments(bundle);
+            btnLogin.setVisibility(View.INVISIBLE);
+            userId = new BigInteger(id);
+            if(gender.equals("male"))
+                genderInt = 1;
+            else
+                genderInt = 0;
 
-            // call fragment
-            fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
-            Toast.makeText(getApplicationContext(),"Đăng nhập lần đầu, vui lòng điền thông tin cá nhân để sử dụng dịch vụ.",Toast.LENGTH_LONG).show();
+            if(emaill == null)
+                emaill = "";
+            User userInfo = new User(userId, name, genderInt, emaill);
+            iRegisterPresenter.sendUserFromLogin(userInfo);
+            isRegister = true;
+
         } else if (status.equals("Active")) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("id", id);
             bundle.putString("name", name);
-            bundle.putString("email",emaill);
-            intent.putExtra("profile",bundle);
+            bundle.putString("email", emaill);
+            intent.putExtra("profile", bundle);
             startActivity(intent);
+            finish();
+            //Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
 
         } else {
             LoginManager.getInstance().logOut();
@@ -177,9 +180,23 @@ public class LoginActivity extends AppCompatActivity implements ILoginView {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void receiveUserFromLogin(User userInfo) {
+//        Toast.makeText(getApplicationContext(), "Id của bạn là: " + userInfo.getUserId(), Toast.LENGTH_LONG).show();
+        bundleToFrag(userInfo);
+    }
 
+    public void bundleToFrag(User userInfo){
+        Bundle bundle = new Bundle();
+        bundle.putString("name", userInfo.getFullname() );
+        bundle.putString("email", userInfo.getEmail());
+        bundle.putString("id",userInfo.getUserId().toString());
+        bundle.putString("gender",userInfo.getGender() + "");
 
+        AddInfoFragment addInfoFragment = new AddInfoFragment();
+        FragmentManager fragmentManager =  getSupportFragmentManager();
+        addInfoFragment.setArguments(bundle);
 
-
-
+        fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
+    }
 }

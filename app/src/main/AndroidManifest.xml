@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".model.LoginHelper" />
+        <activity android:name=".model.login.LoginHelper" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"

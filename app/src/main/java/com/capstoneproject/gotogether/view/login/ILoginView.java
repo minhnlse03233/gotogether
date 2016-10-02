@@ -1,4 +1,4 @@
-package com.capstoneproject.gotogether.view;
+package com.capstoneproject.gotogether.view.login;
 
 /**
  * Created by Nguyen Luc on 9/28/2016.
