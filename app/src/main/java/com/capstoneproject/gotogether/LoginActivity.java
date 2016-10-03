@@ -22,6 +22,7 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -71,9 +72,9 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
 
         iLoginPresenter = new LoginPresenter(this);
         iRegisterPresenter = new RegisterPresenter(this);
+        //textView.setText(AccessToken.getCurrentAccessToken().toString());
 
-
-        //if (AccessToken.getCurrentAccessToken() == null) {
+        if (AccessToken.getCurrentAccessToken() == null) {
 
             btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
@@ -113,13 +114,16 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
                     iLoginPresenter.onError();
                 }
             });
-
-//        } else {
+        }
+        else {
 //            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
-//            Toast.makeText(getApplicationContext(),"bố đăng nhập rồi:" +id,Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(),"bố đăng nhập rồi:" + AccessToken.getCurrentAccessToken(),Toast.LENGTH_SHORT).show();
 //            startActivity(intent);
-//        }
-
+            Profile profile = Profile.getCurrentProfile();
+            iLoginPresenter.onSuccess(profile.getId());
+            btnLogin.setVisibility(View.INVISIBLE);
+            //textView.setText(profile.get);
+        }
     }
 
 
@@ -155,13 +159,13 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
                 emaill = "";
             User userInfo = new User(userId, name, genderInt, emaill);
             iRegisterPresenter.sendUserFromLogin(userInfo);
-            isRegister = true;
-
         } else if (status.equals("Active")) {
+            Profile profile = Profile.getCurrentProfile();
+//            Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putString("id", id);
-            bundle.putString("name", name);
+            bundle.putString("id", profile.getId());
+            bundle.putString("name", profile.getName());
             bundle.putString("email", emaill);
             intent.putExtra("profile", bundle);
             startActivity(intent);
@@ -169,7 +173,8 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             //Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
 
         } else {
-            LoginManager.getInstance().logOut();
+ //           LoginManager.getInstance().logOut();
+//            Toast.makeText(getApplicationContext(), "Id của bạn là: " + id, Toast.LENGTH_LONG).show();
         }
 
     }

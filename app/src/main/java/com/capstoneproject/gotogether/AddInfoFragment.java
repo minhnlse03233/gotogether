@@ -2,7 +2,6 @@ package com.capstoneproject.gotogether;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
@@ -13,24 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.capstoneproject.gotogether.model.User;
 import com.capstoneproject.gotogether.presenter.register.IRegisterPresenter;
 import com.capstoneproject.gotogether.presenter.register.RegisterPresenter;
-import com.capstoneproject.gotogether.view.register.IRegisterView;
 import com.capstoneproject.gotogether.view.register.IRegisterViewFrag;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigInteger;
 
 
 public class AddInfoFragment extends Fragment implements View.OnClickListener, IRegisterViewFrag{
@@ -46,9 +33,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
     Button btnSave, btnIgnore;
     IRegisterPresenter iRegisterPresenter;
     User userInfo;
-
     String finalGender;
-    String insertURL = "http://fugotogether.com/sql/insertUser.php";
 
     public AddInfoFragment() {}
 
@@ -99,10 +84,10 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
         txtEmail = (EditText) v.findViewById(R.id.editEmail);
         txtPhone = (EditText) v.findViewById(R.id.editPhone);
         btnSave = (Button) v.findViewById(R.id.btnSave);
-        btnIgnore = (Button) v.findViewById(R.id.btnIgnore);
+        //btnIgnore = (Button) v.findViewById(R.id.btnIgnore);
         txtAddress = (EditText) v.findViewById(R.id.editAddress);
         btnSave.setOnClickListener(this);
-        btnIgnore.setOnClickListener(this);
+//        btnIgnore.setOnClickListener(this);
         try {
             TelephonyManager tMgr = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
             mPhoneNumber = tMgr.getLine1Number();
@@ -121,6 +106,12 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
         txtName.setText(name);
         txtPhone.setText(mPhoneNumber);
         txtEmail.setText(email);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().finish();
     }
 
     @Override
@@ -143,26 +134,30 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
                         email = "";
                     }
                     String type = "register";
-                    BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
-                    backgroundWorker.execute(type,id, name, finalGender,email, address, phonenumber );
+
+                    userInfo = new User(new BigInteger(id), name, Integer.parseInt(finalGender), email, address, phonenumber);
+
+//                    BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
+//                    backgroundWorker.execute(type,id, name, finalGender,email, address, phonenumber);
+                    iRegisterPresenter.registerNewUser(userInfo);
                     bundleToMain(id, name, email);
                 } catch ( Exception ex) {}
 
 //                goToMain();
 
                 break;
-            case R.id.btnIgnore:
-                String phonenumber1 = txtPhone.getText().toString();
-                String address1 = txtAddress.getText().toString();
-                if (email == null) {
-                    email = "";
-                }
-                String type1 = "register";
-                BackgroundWorker backgroundWorker1 = new BackgroundWorker(getContext());
-                backgroundWorker1.execute(type1,id, name, finalGender,email, address1, phonenumber1 );
-                bundleToMain(id, name, email);
-                break;
-            default:
+//            case R.id.btnIgnore:
+//                String phonenumber1 = txtPhone.getText().toString();
+//                String address1 = txtAddress.getText().toString();
+//                if (email == null) {
+//                    email = "";
+//                }
+//                String type1 = "register";
+//                 BackgroundWorker backgroundWorker1 = new BackgroundWorker(getContext());
+//                 backgroundWorker1.execute(type1,id, name, finalGender,email, address1, phonenumber1 );
+//                bundleToMain(id, name, email);
+//                break;
+//            default:
         }
     }
 
@@ -179,16 +174,21 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
         bundle.putString("email", email);
         intent.putExtra("profile", bundle);
         startActivity(intent);
-        
+
     }
 
     @Override
     public void receiveUserFromLoginFrag(User userInfo) {
-        Toast.makeText(getContext(), "OK bo nhan dc roi nhe", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "OK bo nhan dc roi nhe", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void receivedAction() {
-        Toast.makeText(getContext(), "OK", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "OK", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void noticeRegister(String result) {
+        Toast.makeText(getContext(), "OK nhé đăng ký thành công rồi đấy", Toast.LENGTH_SHORT).show();
     }
 }

@@ -7,4 +7,5 @@ import com.capstoneproject.gotogether.model.User;
  */
 public interface IRegisterUser {
     void passUserFromLogin(User userInfo);
+    void requestRegister(User userInfo);
 }
