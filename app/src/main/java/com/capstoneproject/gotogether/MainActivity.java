@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onResume() {
+
         super.onResume();
         Toast.makeText(this, "Chào mừng quay lại ứng dụng", Toast.LENGTH_SHORT).show();
     }
