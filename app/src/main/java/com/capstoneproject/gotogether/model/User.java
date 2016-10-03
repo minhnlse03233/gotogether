@@ -27,12 +27,13 @@ public class User {
         this.star = star;
     }
 
-    public User(BigInteger userId, String fullname, int gender, String phonenumber, String email){
+    public User(BigInteger userId, String fullname, int gender,String email, String address, String phonenumber){
         this.userId = userId;
         this.fullname = fullname;
         this.gender = gender;
-        this.phonenumber = phonenumber;
         this.email = email;
+        this.address = address;
+        this.phonenumber = phonenumber;
     }
 
     public User(BigInteger userId, String fullname, int gender, String email){
@@ -80,5 +81,13 @@ public class User {
 
     public String getEmail(){
         return  this.email;
+    }
+
+    public void setAddress(String address){
+        this.address = address;
+    }
+
+    public String getAddress(){
+        return  this.address;
     }
 }

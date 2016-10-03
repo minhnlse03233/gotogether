@@ -40,7 +40,17 @@ public class RegisterPresenter implements IRegisterPresenter, IRegisterResult {
     }
 
     @Override
+    public void registerNewUser(User userInfo) {
+        iRegisterUser.requestRegister(userInfo);
+    }
+
+    @Override
     public void passUserToFrag(User userInfo) {
 //        iRegisterViewFrag.receiveUserFromLoginFrag(userInfo);
+    }
+
+    @Override
+    public void registerComplete(String result) {
+        iRegisterViewFrag.noticeRegister(result);
     }
 }

@@ -8,4 +8,5 @@ import com.capstoneproject.gotogether.model.User;
 public interface IRegisterViewFrag {
     void receiveUserFromLoginFrag(User userInfo);
     void receivedAction();
+    void noticeRegister(String result);
 }

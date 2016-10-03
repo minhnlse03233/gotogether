@@ -8,4 +8,5 @@ import com.capstoneproject.gotogether.model.User;
 public interface IRegisterPresenter {
     void sendUserFromLogin(User userInfo);
     void actionFromFrag();
+    void registerNewUser(User userInfo);
 }

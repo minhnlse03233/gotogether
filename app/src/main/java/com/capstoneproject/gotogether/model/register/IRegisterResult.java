@@ -7,4 +7,5 @@ import com.capstoneproject.gotogether.model.User;
  */
 public interface IRegisterResult {
     void passUserToFrag(User userInfo);
+    void registerComplete(String result);
 }
