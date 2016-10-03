@@ -6,12 +6,9 @@
     tools:context="com.capstoneproject.gotogether.LoginActivity"
     android:id="@+id/login_activity">
 
-<<<<<<< HEAD
-=======
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
->>>>>>> f24655da049afa8e9749800c3093cabc2199a069
 
         android:src="@drawable/home_login"
         android:scaleType="centerCrop"
@@ -20,10 +17,11 @@
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="30dp"
         android:layout_gravity="center_horizontal"
-        android:layout_alignBottom="@+id/imageView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="127dp" />
+        android:layout_marginBottom="140dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,8 +32,5 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-<<<<<<< HEAD
-=======
 
->>>>>>> f24655da049afa8e9749800c3093cabc2199a069
 </RelativeLayout>
