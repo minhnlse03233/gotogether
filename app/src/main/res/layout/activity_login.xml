@@ -6,9 +6,12 @@
     tools:context="com.capstoneproject.gotogether.LoginActivity"
     android:id="@+id/login_activity">
 
+<<<<<<< HEAD
+=======
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+>>>>>>> f24655da049afa8e9749800c3093cabc2199a069
 
         android:src="@drawable/home_login"
         android:scaleType="centerCrop"
@@ -31,5 +34,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> f24655da049afa8e9749800c3093cabc2199a069
 </RelativeLayout>

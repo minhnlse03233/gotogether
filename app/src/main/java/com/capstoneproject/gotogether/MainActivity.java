@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -15,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +32,6 @@ public class MainActivity extends AppCompatActivity
     ProfilePictureView profilePictureView;
     TextView txtName, txtEmail, txtTest;
     Button quickSearch;
-
 
 
     @Override
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity
         txtName.setText(name);
         txtEmail.setText(email);
 
-
     }
 
     private void goLoginScreen() {
@@ -89,21 +89,17 @@ public class MainActivity extends AppCompatActivity
     public void logout() {
         LoginManager.getInstance().logOut();
         goLoginScreen();
+        finish();
     }
 
     public void onResume() {
         super.onResume();
-        Toast.makeText(this, "Chào mừng quay lại ứng dụng", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Chào mừng quay lại ứng dụng", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     @Override
@@ -113,13 +109,8 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -162,9 +153,9 @@ public class MainActivity extends AppCompatActivity
         int wiget = v.getId();
         switch (wiget) {
             case R.id.quick_search:
-                QuickSearchFragment addInfoFragment = new QuickSearchFragment();
+                QuickSearchFragment quickSearchFragment = new QuickSearchFragment();
                 FragmentManager fragmentManager =  getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.main_activity, addInfoFragment).commit();
+                fragmentManager.beginTransaction().replace(R.id.main_activity, quickSearchFragment).commit();
                 break;
         }
     }

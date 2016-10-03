@@ -134,9 +134,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
                         email = "";
                     }
                     String type = "register";
-
                     userInfo = new User(new BigInteger(id), name, Integer.parseInt(finalGender), email, address, phonenumber);
-
 //                    BackgroundWorker backgroundWorker = new BackgroundWorker(getContext());
 //                    backgroundWorker.execute(type,id, name, finalGender,email, address, phonenumber);
                     iRegisterPresenter.registerNewUser(userInfo);
@@ -189,6 +187,6 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
 
     @Override
     public void noticeRegister(String result) {
-        Toast.makeText(getContext(), "OK nhé đăng ký thành công rồi đấy", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "OK nhé đăng ký thành công rồi đấy", Toast.LENGTH_SHORT).show();
     }
 }
