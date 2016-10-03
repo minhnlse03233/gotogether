@@ -14,9 +14,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,9 +50,7 @@ public class QuickSearchFragment extends Fragment {
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
 
 
-    public QuickSearchFragment() {
-
-    }
+    public QuickSearchFragment() {}
 
     public static QuickSearchFragment newInstance(String param1, String param2) {
         QuickSearchFragment fragment = new QuickSearchFragment();
@@ -133,6 +133,32 @@ public class QuickSearchFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+//        Toast.makeText(getContext(), "PAUSE", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener( new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey( View v, int keyCode, KeyEvent event )
+            {
+                if( keyCode == KeyEvent.KEYCODE_BACK )
+                {
+                    getView().setVisibility(View.GONE);
+                    return true;
+                }
+                return false;
+            }
+        });
+        super.onResume();
+    }
+
     private void onMyMapReady(GoogleMap mMap) {
 
         // Lấy đối tượng Google Map ra:
@@ -148,6 +174,7 @@ public class QuickSearchFragment extends Fragment {
             }
         });
     }
+
 
     private void askPermissionsAndShowMyLocation() {
 
@@ -228,6 +255,9 @@ public class QuickSearchFragment extends Fragment {
             String country = addressList.get(0).getCountryName();
             String postalCode = addressList.get(0).getPostalCode();
             String knownName = addressList.get(0).getFeatureName();
+            if(address == null){
+                fnialAddress = district + country;
+            }
             fnialAddress = address + " " + district + " " + city + " " + state;
         } catch (IOException e) {}
         catch (NullPointerException e) {}

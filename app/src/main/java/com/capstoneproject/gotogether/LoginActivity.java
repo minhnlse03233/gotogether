@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     String id,name, emaill, gender;
     int genderInt;
     BigInteger userId;
+    Profile profile;
     boolean isRegister = false;
 
     @Override
@@ -52,30 +53,24 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             public void onInitialized() {
                 if(AccessToken.getCurrentAccessToken() == null){
                     System.out.println("not logged in yet");
-
                 } else {
                     System.out.println("Logged in");
-
                 }
             }
         });
         setContentView(R.layout.activity_login);
 
         textView = (TextView) findViewById(R.id.textView);
-        // gọi call back facebook
         callbackManager = CallbackManager.Factory.create();
         btnLogin = (LoginButton) findViewById(R.id.login_button);
 
-        // set đọc quyền đc lấy thông tin email, profile...
-        btnLogin.setReadPermissions(Arrays.asList(
-                "public_profile", "email", "user_birthday", "user_friends"));
+        btnLogin.setReadPermissions(Arrays.asList("public_profile", "email", "user_birthday", "user_friends"));
 
         iLoginPresenter = new LoginPresenter(this);
         iRegisterPresenter = new RegisterPresenter(this);
         //textView.setText(AccessToken.getCurrentAccessToken().toString());
 
         if (AccessToken.getCurrentAccessToken() == null) {
-
             btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(LoginResult loginResult) {
@@ -88,8 +83,9 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
                                         id = object.getString("id");
                                         gender = object.getString("gender");
                                         name = object.getString("name");
-
+//                                        Toast.makeText(getApplicationContext(), "Button click", Toast.LENGTH_LONG).show();
                                         iLoginPresenter.onSuccess(id);
+                                        btnLogin.setVisibility(View.INVISIBLE);
                                         emaill = object.getString("email");
 
                                     } catch (JSONException e) {
@@ -119,10 +115,12 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
 //            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
 //            Toast.makeText(getApplicationContext(),"bố đăng nhập rồi:" + AccessToken.getCurrentAccessToken(),Toast.LENGTH_SHORT).show();
 //            startActivity(intent);
-            Profile profile = Profile.getCurrentProfile();
+            profile = Profile.getCurrentProfile();
+//            Toast.makeText(getApplicationContext(), "Else" + profile.getId(), Toast.LENGTH_LONG).show();
             iLoginPresenter.onSuccess(profile.getId());
+
             btnLogin.setVisibility(View.INVISIBLE);
-            //textView.setText(profile.get);
+//            textView.setText(profile.getName());
         }
     }
 
@@ -148,15 +146,26 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     @Override
     public void statusUser(String status) {
         if (status.equals("NoActive")) {
+            profile = Profile.getCurrentProfile();
+
             btnLogin.setVisibility(View.INVISIBLE);
-            userId = new BigInteger(id);
-            if(gender.equals("male"))
+            userId = new BigInteger(profile.getId());
+
+            if(gender != null){
+                if(gender.equals("male"))
+                    genderInt = 1;
+                else
+                    genderInt = 0;
+            }else
                 genderInt = 1;
-            else
-                genderInt = 0;
+
 
             if(emaill == null)
                 emaill = "";
+
+            if(name == null)
+                name = profile.getName();
+
             User userInfo = new User(userId, name, genderInt, emaill);
             iRegisterPresenter.sendUserFromLogin(userInfo);
         } else if (status.equals("Active")) {
@@ -173,7 +182,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             //Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
 
         } else {
- //           LoginManager.getInstance().logOut();
+//            LoginManager.getInstance().logOut();
 //            Toast.makeText(getApplicationContext(), "Id của bạn là: " + id, Toast.LENGTH_LONG).show();
         }
 
@@ -189,6 +198,11 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     public void receiveUserFromLogin(User userInfo) {
 //        Toast.makeText(getApplicationContext(), "Id của bạn là: " + userInfo.getUserId(), Toast.LENGTH_LONG).show();
         bundleToFrag(userInfo);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     public void bundleToFrag(User userInfo){
