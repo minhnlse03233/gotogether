@@ -1,10 +1,18 @@
 package com.capstoneproject.gotogether;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,8 +41,9 @@ import org.json.JSONObject;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity implements ILoginView, IRegisterView {
+public class LoginActivity extends AppCompatActivity implements ILoginView, IRegisterView, View.OnClickListener {
     LoginButton btnLogin;
+    Button btnPhoneLogin;
     CallbackManager callbackManager;
     ILoginPresenter iLoginPresenter;
     IRegisterPresenter iRegisterPresenter;
@@ -43,7 +52,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     int genderInt;
     BigInteger userId;
     Profile profile;
-    boolean isRegister = false;
+    public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +68,12 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             }
         });
         setContentView(R.layout.activity_login);
+        btnPhoneLogin = (Button) findViewById(R.id.phonenumber_login);
+        btnPhoneLogin.setOnClickListener(this);
 
         textView = (TextView) findViewById(R.id.textView);
         callbackManager = CallbackManager.Factory.create();
         btnLogin = (LoginButton) findViewById(R.id.login_button);
-
         btnLogin.setReadPermissions(Arrays.asList("public_profile", "email", "user_birthday", "user_friends"));
 
         iLoginPresenter = new LoginPresenter(this);
@@ -83,7 +93,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
                                         id = object.getString("id");
                                         gender = object.getString("gender");
                                         name = object.getString("name");
-//                                        Toast.makeText(getApplicationContext(), "Button click", Toast.LENGTH_LONG).show();
                                         iLoginPresenter.onSuccess(id);
                                         btnLogin.setVisibility(View.INVISIBLE);
                                         emaill = object.getString("email");
@@ -112,15 +121,9 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             });
         }
         else {
-//            Intent intent  = new Intent(getApplicationContext(), MainActivity.class);
-//            Toast.makeText(getApplicationContext(),"bố đăng nhập rồi:" + AccessToken.getCurrentAccessToken(),Toast.LENGTH_SHORT).show();
-//            startActivity(intent);
             profile = Profile.getCurrentProfile();
-//            Toast.makeText(getApplicationContext(), "Else" + profile.getId(), Toast.LENGTH_LONG).show();
             iLoginPresenter.onSuccess(profile.getId());
-
             btnLogin.setVisibility(View.INVISIBLE);
-//            textView.setText(profile.getName());
         }
     }
 
@@ -129,25 +132,23 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
 
     @Override
     public void loginChangeInten(String id) {
-        //Toast.makeText(getApplicationContext(),"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
     public void loginCancel() {
-
+        Toast.makeText(getApplicationContext(),"Đăng nhập không thành công vì bị hủy. Vui lòng thử lại!",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void loginError() {
-        Toast.makeText(getApplicationContext(),"Đăng nhập không thành công. Vui lòng thử lại!",Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(getApplicationContext(),"Đăng nhập không thành công. Vui lòng kiểm tra lại kết nối!",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void statusUser(String status) {
         if (status.equals("NoActive")) {
             profile = Profile.getCurrentProfile();
-
             btnLogin.setVisibility(View.INVISIBLE);
             userId = new BigInteger(profile.getId());
 
@@ -159,7 +160,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             }else
                 genderInt = 1;
 
-
             if(emaill == null)
                 emaill = "";
 
@@ -170,7 +170,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             iRegisterPresenter.sendUserFromLogin(userInfo);
         } else if (status.equals("Active")) {
             Profile profile = Profile.getCurrentProfile();
-//            Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("id", profile.getId());
@@ -179,8 +178,6 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             intent.putExtra("profile", bundle);
             startActivity(intent);
             finish();
-            //Toast.makeText(getApplicationContext(), "Ac cmn tive", Toast.LENGTH_LONG).show();
-
         } else {
 //            LoginManager.getInstance().logOut();
 //            Toast.makeText(getApplicationContext(), "Id của bạn là: " + id, Toast.LENGTH_LONG).show();
@@ -209,13 +206,60 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
         Bundle bundle = new Bundle();
         bundle.putString("name", userInfo.getFullname() );
         bundle.putString("email", userInfo.getEmail());
-        bundle.putString("id",userInfo.getUserId().toString());
-        bundle.putString("gender",userInfo.getGender() + "");
+        bundle.putString("id", userInfo.getUserId().toString());
+        bundle.putString("gender", userInfo.getGender() + "");
 
         AddInfoFragment addInfoFragment = new AddInfoFragment();
         FragmentManager fragmentManager =  getSupportFragmentManager();
         addInfoFragment.setArguments(bundle);
 
         fragmentManager.beginTransaction().replace(R.id.login_activity, addInfoFragment).commit();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int wiget = v.getId();
+        switch (wiget) {
+            case R.id.phonenumber_login:
+                askPermissionsAndGetPhoneNumber();
+                break;
+        }
+    }
+
+    private void askPermissionsAndGetPhoneNumber() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int accessReadPhoneState
+                    = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE);
+            if (accessReadPhoneState != PackageManager.PERMISSION_GRANTED) {
+                // Các quyền cần người dùng cho phép.
+                String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_PHONE_STATE};
+                // Hiển thị một Dialog hỏi người dùng cho phép các quyền trên.
+                ActivityCompat.requestPermissions(this, permissions,
+                        MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
+                return;
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_PHONE_STATE: {
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getCurrentPhoneNumber();
+                } else {
+                    Toast.makeText(this, "Tính năng lấy số điện thoại đã bị từ chối", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    public void getCurrentPhoneNumber(){
+        TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+        //mPhoneNumber = tMgr.getLine1Number();
     }
 }

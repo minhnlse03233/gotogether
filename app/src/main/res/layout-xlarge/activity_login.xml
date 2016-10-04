@@ -6,22 +6,30 @@
     tools:context="com.capstoneproject.gotogether.LoginActivity"
     android:id="@+id/login_activity">
 
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:src="@drawable/home_login"
         android:scaleType="centerCrop"
-        android:id="@+id/imageView2" />
+        android:id="@+id/imageView2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true" />
+
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30dp"
+        xmlns:facebook="http://schemas.android.com/apk/res-auto"
+        facebook:com_facebook_login_text="ĐĂNG NHẬP BẰNG TÀI KHOẢN FACEBOOK"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="222dp"
         android:layout_alignBottom="@+id/imageView2"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="127dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -32,5 +40,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ĐĂNG NHẬP BẰNG SỐ ĐIỆN THOẠI"
+        android:id="@+id/phonenumber_login"
+        android:layout_alignTop="@+id/login_button"
+        android:layout_alignLeft="@+id/login_button"
+        android:layout_alignStart="@+id/login_button"
+        android:layout_marginTop="58dp"
+        android:layout_alignRight="@+id/login_button"
+        android:layout_alignEnd="@+id/login_button" />
 
 </RelativeLayout>

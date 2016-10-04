@@ -68,28 +68,13 @@ public class QuickSearchFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
         // Tạo Progress Bar
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Đang tải bản đồ ...");
         myProgress.setMessage("Xin vui lòng đợi");
         myProgress.setCancelable(true);
-
         // Hiển thị Progress Bar
         myProgress.show();
-
-//        SupportMapFragment mSupportMapFragment = new SupportMapFragment();
-//        myMap = mSupportMapFragment.getMap();
-
-//        SupportMapFragment mapFragment
-//                = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.quick_search_fragment);
-//        mapFragment.getMapAsync(new OnMapReadyCallback() {
-//
-//            @Override
-//            public void onMapReady(GoogleMap googleMap) {
-//                //onMyMapReady(googleMap);
-//            }
-//        });
     }
 
     @Override
@@ -112,31 +97,20 @@ public class QuickSearchFragment extends Fragment {
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
-
                 // For showing a move to my location button
                 googleMap.setMyLocationEnabled(true);
                 googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 googleMap.getUiSettings().setZoomControlsEnabled(true);
                 googleMap.setTrafficEnabled(true);
-
-                // For dropping a marker at a point on the Map
-//                LatLng sydney = new LatLng(-34, 151);
-//                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-//
-//                // For zooming automatically to the location of the marker
-//                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-//                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 onMyMapReady(mMap);
             }
         });
-
         return rootView;
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        Toast.makeText(getContext(), "PAUSE", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -160,10 +134,8 @@ public class QuickSearchFragment extends Fragment {
     }
 
     private void onMyMapReady(GoogleMap mMap) {
-
         // Lấy đối tượng Google Map ra:
         googleMap = mMap;
-
         // Thiết lập sự kiện đã tải Map thành công
         googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
 
@@ -177,59 +149,66 @@ public class QuickSearchFragment extends Fragment {
 
 
     private void askPermissionsAndShowMyLocation() {
-
         // Với API >= 23, bạn phải hỏi người dùng cho phép xem vị trí của họ.
         if (Build.VERSION.SDK_INT >= 23) {
             int accessCoarsePermission
                     = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
             int accessFinePermission
                     = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-
-
             if (accessCoarsePermission != PackageManager.PERMISSION_GRANTED
                     || accessFinePermission != PackageManager.PERMISSION_GRANTED) {
-
                 // Các quyền cần người dùng cho phép.
                 String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION};
-
                 // Hiển thị một Dialog hỏi người dùng cho phép các quyền trên.
-//                ActivityCompat.requestPermissions(getContext(), permissions,
-//                        REQUEST_ID_ACCESS_COURSE_FINE_LOCATION);
-
+                ActivityCompat.requestPermissions(getActivity(), permissions,
+                        REQUEST_ID_ACCESS_COURSE_FINE_LOCATION);
                 return;
             }
         }
-
         // Hiển thị vị trí hiện thời trên bản đồ.
         getMyCurrentLocal();
-        //testGetAddressLocation();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ID_ACCESS_COURSE_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getMyCurrentLocal();
+                } else {
+                    Toast.makeText(getContext(), "Tính năng truy cập GPS đã bị từ chối", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
     }
 
     private void getMyCurrentLocal(){
 
         Location myLocation  = googleMap.getMyLocation();
 
-        if(myLocation!=null){
+        if(myLocation != null){
             double dLatitude = myLocation.getLatitude();
             double dLongitude = myLocation.getLongitude();
-            Log.i("APPLICATION"," : " + dLatitude);
-            Log.i("APPLICATION"," : " + dLongitude);
-
             LatLng latLng = new LatLng(dLatitude, dLongitude);
 
             MarkerOptions option = new MarkerOptions();
             option.title("Vị trí của bạn");
 
-            String test = getNameOfProvince(latLng);
-            option.snippet(test);
+            String currentNameOfLocal = getNameOfProvince(latLng);
+            option.snippet(currentNameOfLocal);
             option.position(latLng);
             option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+
             Marker currentMarker = googleMap.addMarker(option);
             currentMarker.showInfoWindow();
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng)      // Sets the center of the map to location user
+                    .target(latLng)             // Sets the center of the map to location user
                     .zoom(15)                   // Sets the zoom
                     .bearing(90)                // Sets the orientation of the camera to east
                     .tilt(40)                   // Sets the tilt of the camera to 30 degrees
