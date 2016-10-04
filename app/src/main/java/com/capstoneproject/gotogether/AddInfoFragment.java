@@ -1,9 +1,14 @@
 package com.capstoneproject.gotogether;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +39,7 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
     IRegisterPresenter iRegisterPresenter;
     User userInfo;
     String finalGender;
+    public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 100;
 
     public AddInfoFragment() {}
 
@@ -88,13 +94,16 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
         txtAddress = (EditText) v.findViewById(R.id.editAddress);
         btnSave.setOnClickListener(this);
 //        btnIgnore.setOnClickListener(this);
-        try {
-            TelephonyManager tMgr = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
-            mPhoneNumber = tMgr.getLine1Number();
-        } catch (Exception e){
-
-        }
-
+//        try {
+//            TelephonyManager tMgr = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+//            mPhoneNumber = tMgr.getLine1Number();
+//        } catch (Exception e){
+//
+//        }
+        if(Build.VERSION.SDK_INT >= 23)
+            askPermissionsAndGetPhoneNumber();
+        else
+            getCurrentPhoneNumber();
 
         return v;
 
@@ -188,5 +197,44 @@ public class AddInfoFragment extends Fragment implements View.OnClickListener, I
     @Override
     public void noticeRegister(String result) {
 //        Toast.makeText(getContext(), "OK nhé đăng ký thành công rồi đấy", Toast.LENGTH_SHORT).show();
+    }
+
+    private void askPermissionsAndGetPhoneNumber() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int accessReadPhoneState
+                    = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE);
+            if (accessReadPhoneState != PackageManager.PERMISSION_GRANTED) {
+                // Các quyền cần người dùng cho phép.
+                String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_PHONE_STATE};
+                // Hiển thị một Dialog hỏi người dùng cho phép các quyền trên.
+                ActivityCompat.requestPermissions(getActivity(), permissions,
+                        MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
+                return;
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_PHONE_STATE: {
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getCurrentPhoneNumber();
+                } else {
+                    Toast.makeText(getContext(), "Tính năng lấy số điện thoại đã bị từ chối", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    public void getCurrentPhoneNumber(){
+        TelephonyManager tMgr = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneNumber = tMgr.getLine1Number();
+        //mPhoneNumber = tMgr.getLine1Number();
     }
 }
