@@ -2,6 +2,7 @@ package com.capstoneproject.gotogether;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,8 +20,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+<<<<<<< HEAD
+import android.widget.Button;
+=======
+import android.widget.FrameLayout;
+>>>>>>> bd5da0bd47b5efb2288c66b2da50cae6dba0c4f1
 import android.widget.Toast;
 
+import com.capstoneproject.gotogether.presenter.quicksearch.IQuickSearchPresenter;
+import com.capstoneproject.gotogether.presenter.quicksearch.QuickSearchPresenter;
+import com.capstoneproject.gotogether.view.quicksearch.IQuickSearchView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -36,7 +46,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-public class QuickSearchFragment extends Fragment {
+public class QuickSearchFragment extends Fragment implements IQuickSearchView {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -48,6 +58,9 @@ public class QuickSearchFragment extends Fragment {
     MapView mapView;
     private ProgressDialog myProgress;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
+    Button quickSearch;
+
+    IQuickSearchPresenter iQuickSearchPresenter;
 
 
     public QuickSearchFragment() {}
@@ -73,8 +86,32 @@ public class QuickSearchFragment extends Fragment {
         myProgress.setTitle("Đang tải bản đồ ...");
         myProgress.setMessage("Xin vui lòng đợi");
         myProgress.setCancelable(true);
-        // Hiển thị Progress Bar
-        myProgress.show();
+
+        iQuickSearchPresenter = new QuickSearchPresenter(this);
+        iQuickSearchPresenter.showProgressBar();
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener( new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey( View v, int keyCode, KeyEvent event )
+            {
+                if( keyCode == KeyEvent.KEYCODE_BACK )
+                {
+                    getView().setVisibility(View.GONE);
+                    return true;
+                }
+                return false;
+            }
+        } );
+        //super.onResume();
     }
 
     @Override
@@ -115,21 +152,21 @@ public class QuickSearchFragment extends Fragment {
 
     @Override
     public void onResume() {
-        getView().setFocusableInTouchMode(true);
-        getView().requestFocus();
-        getView().setOnKeyListener( new View.OnKeyListener()
-        {
-            @Override
-            public boolean onKey( View v, int keyCode, KeyEvent event )
-            {
-                if( keyCode == KeyEvent.KEYCODE_BACK )
-                {
-                    getView().setVisibility(View.GONE);
-                    return true;
-                }
-                return false;
-            }
-        });
+//        getView().setFocusableInTouchMode(true);
+//        getView().requestFocus();
+//        getView().setOnKeyListener( new View.OnKeyListener()
+//        {
+//            @Override
+//            public boolean onKey( View v, int keyCode, KeyEvent event )
+//            {
+//                if( keyCode == KeyEvent.KEYCODE_BACK )
+//                {
+//                    getView().setVisibility(View.GONE);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
         super.onResume();
     }
 
@@ -141,7 +178,7 @@ public class QuickSearchFragment extends Fragment {
 
             @Override
             public void onMapLoaded() {
-                myProgress.dismiss();
+//                myProgress.dismiss();
                 askPermissionsAndShowMyLocation();
             }
         });
@@ -167,6 +204,7 @@ public class QuickSearchFragment extends Fragment {
             }
         }
         // Hiển thị vị trí hiện thời trên bản đồ.
+        iQuickSearchPresenter.dissProgressBar();
         getMyCurrentLocal();
     }
 
@@ -178,6 +216,7 @@ public class QuickSearchFragment extends Fragment {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    iQuickSearchPresenter.dissProgressBar();
                     getMyCurrentLocal();
                 } else {
                     Toast.makeText(getContext(), "Tính năng truy cập GPS đã bị từ chối", Toast.LENGTH_LONG).show();
@@ -224,7 +263,6 @@ public class QuickSearchFragment extends Fragment {
         try {
 
             List<Address> addressList;
-            //textTest.setText("Size ");
             addressList = geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
 
             String address = addressList.get(0).getAddressLine(0);
@@ -246,5 +284,13 @@ public class QuickSearchFragment extends Fragment {
             return "Cannot receive name of location";
     }
 
+    @Override
+    public void showProgressBar() {
+        myProgress.show();
+    }
 
+    @Override
+    public void dissProgressBar() {
+        myProgress.dismiss();
+    }
 }
