@@ -260,6 +260,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
 
     public void getCurrentPhoneNumber(){
         TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+//        Toast.makeText(this, "Xin chào " + tMgr.getLine1Number(), Toast.LENGTH_LONG).show();
         //mPhoneNumber = tMgr.getLine1Number();
     }
 }

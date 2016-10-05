@@ -6,6 +6,13 @@
     tools:context="com.capstoneproject.gotogether.AddInfoFragment">
 
     <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:src="@drawable/register"
+        android:scaleType="centerCrop"
+        android:id="@+id/imageView2" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,7 +18,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.facebook.login.widget.ProfilePictureView;
@@ -31,16 +29,23 @@ public class MainActivity extends AppCompatActivity
     String id,name,email;
     ProfilePictureView profilePictureView;
     TextView txtName, txtEmail, txtTest;
-    Button quickSearch;
-
+    Button btnQuickSearch, btnSearch, btnPost;
+    boolean fragmentIsShow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        quickSearch = (Button) findViewById(R.id.quick_search);
-        quickSearch.setOnClickListener(this);
+
+        btnQuickSearch = (Button) findViewById(R.id.btn_quick_search);
+        btnQuickSearch.setOnClickListener(this);
+
+        btnSearch = (Button) findViewById(R.id.btn_search);
+        btnSearch.setOnClickListener(this);
+
+        btnPost = (Button) findViewById(R.id.btn_post);
+        btnPost.setOnClickListener(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -93,13 +98,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onResume() {
+
         super.onResume();
 //        Toast.makeText(this, "Chào mừng quay lại ứng dụng", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        FrameLayout frameLayout;
+        frameLayout = (FrameLayout) findViewById(R.id.quick_search_fragment);
+        if((frameLayout == null && fragmentIsShow == false) || (frameLayout != null && fragmentIsShow == false))
+            super.onBackPressed();
+        else {
+            frameLayout.setVisibility(View.INVISIBLE);
+            btnQuickSearch.setVisibility(View.VISIBLE);
+            btnSearch.setVisibility(View.VISIBLE);
+            btnPost.setVisibility(View.VISIBLE);
+            fragmentIsShow = false;
+        }
     }
 
     @Override
@@ -152,7 +168,11 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         int wiget = v.getId();
         switch (wiget) {
-            case R.id.quick_search:
+            case R.id.btn_quick_search:
+                btnQuickSearch.setVisibility(View.INVISIBLE);
+                btnSearch.setVisibility(View.INVISIBLE);
+                btnPost.setVisibility(View.INVISIBLE);
+                fragmentIsShow = true;
                 QuickSearchFragment quickSearchFragment = new QuickSearchFragment();
                 FragmentManager fragmentManager =  getSupportFragmentManager();
                 fragmentManager.beginTransaction().replace(R.id.main_activity, quickSearchFragment).commit();
