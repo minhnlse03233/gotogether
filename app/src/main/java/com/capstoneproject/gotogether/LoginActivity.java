@@ -129,7 +129,10 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     }
 
 
-
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
 
     @Override
     public void loginChangeInten(String id) {
