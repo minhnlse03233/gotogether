@@ -2,8 +2,8 @@ package com.capstoneproject.gotogether;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -12,21 +12,20 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-import android.widget.Button;
-=======
 import android.widget.FrameLayout;
->>>>>>> bd5da0bd47b5efb2288c66b2da50cae6dba0c4f1
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.capstoneproject.gotogether.model.Trip;
 import com.capstoneproject.gotogether.presenter.quicksearch.IQuickSearchPresenter;
 import com.capstoneproject.gotogether.presenter.quicksearch.QuickSearchPresenter;
 import com.capstoneproject.gotogether.view.quicksearch.IQuickSearchView;
@@ -35,18 +34,26 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class QuickSearchFragment extends Fragment implements IQuickSearchView {
+public class QuickSearchFragment extends Fragment implements IQuickSearchView, GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -58,7 +65,16 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
     MapView mapView;
     private ProgressDialog myProgress;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
-    Button quickSearch;
+    private List<Polyline> polylinePaths = new ArrayList<>();
+    Trip currentTrip;
+    ArrayList<Trip> currentTripsMap = new ArrayList<>();
+    List<LatLng> points;
+    LatLng latLngStart;
+    LatLng latLngEnd;
+    MarkerOptions option;
+    Marker currentMarker;
+    double distance;
+    Polyline polyline;
 
     IQuickSearchPresenter iQuickSearchPresenter;
 
@@ -81,6 +97,8 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+//        googleMap.setOnMarkerClickListener(this);
         // Tạo Progress Bar
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Đang tải bản đồ ...");
@@ -90,32 +108,33 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
         iQuickSearchPresenter = new QuickSearchPresenter(this);
         iQuickSearchPresenter.showProgressBar();
 
-
     }
 
     @Override
     public void onResume() {
+//        super.onResume();
+//        getView().setFocusableInTouchMode(true);
+//        getView().requestFocus();
+//        getView().setOnKeyListener( new View.OnKeyListener()
+//        {
+//            @Override
+//            public boolean onKey( View v, int keyCode, KeyEvent event )
+//            {
+//                if( keyCode == KeyEvent.KEYCODE_BACK )
+//                {
+//                    getView().setVisibility(View.GONE);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        } );
+//        currentLocation = getCurrentLatLng();
+//        iQuickSearchPresenter.loadTrip(currentLocation);
         super.onResume();
-        getView().setFocusableInTouchMode(true);
-        getView().requestFocus();
-        getView().setOnKeyListener( new View.OnKeyListener()
-        {
-            @Override
-            public boolean onKey( View v, int keyCode, KeyEvent event )
-            {
-                if( keyCode == KeyEvent.KEYCODE_BACK )
-                {
-                    getView().setVisibility(View.GONE);
-                    return true;
-                }
-                return false;
-            }
-        } );
-        //super.onResume();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_quick_search, container, false);
 
@@ -135,6 +154,7 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
                 // For showing a move to my location button
+
                 googleMap.setMyLocationEnabled(true);
                 googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 googleMap.getUiSettings().setZoomControlsEnabled(true);
@@ -142,32 +162,15 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
                 onMyMapReady(mMap);
             }
         });
+
+        //currentLocation = getCurrentLatLng();
+//        iQuickSearchPresenter.loadTrip(currentLocation);
         return rootView;
     }
 
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-//        getView().setFocusableInTouchMode(true);
-//        getView().requestFocus();
-//        getView().setOnKeyListener( new View.OnKeyListener()
-//        {
-//            @Override
-//            public boolean onKey( View v, int keyCode, KeyEvent event )
-//            {
-//                if( keyCode == KeyEvent.KEYCODE_BACK )
-//                {
-//                    getView().setVisibility(View.GONE);
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-        super.onResume();
     }
 
     private void onMyMapReady(GoogleMap mMap) {
@@ -183,7 +186,6 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
             }
         });
     }
-
 
     private void askPermissionsAndShowMyLocation() {
         // Với API >= 23, bạn phải hỏi người dùng cho phép xem vị trí của họ.
@@ -229,34 +231,39 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
     private void getMyCurrentLocal(){
 
         Location myLocation  = googleMap.getMyLocation();
+        googleMap.setOnMarkerClickListener(this);
+        googleMap.setOnMapClickListener(this);
+        googleMap.setOnInfoWindowClickListener(this);
 
         if(myLocation != null){
             double dLatitude = myLocation.getLatitude();
             double dLongitude = myLocation.getLongitude();
             LatLng latLng = new LatLng(dLatitude, dLongitude);
 
-            MarkerOptions option = new MarkerOptions();
-            option.title("Vị trí của bạn");
+            iQuickSearchPresenter.loadTrip(latLng);
 
-            String currentNameOfLocal = getNameOfProvince(latLng);
-            option.snippet(currentNameOfLocal);
-            option.position(latLng);
-            option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+//            option = new MarkerOptions();
+//            option.title("Vị trí của bạn");
 
-            Marker currentMarker = googleMap.addMarker(option);
-            currentMarker.showInfoWindow();
+            //String currentNameOfLocal = getNameOfProvince(latLng);
+            //option.snippet(currentNameOfLocal);
+//            option.position(latLng);
+//            option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+
+//            currentMarker = googleMap.addMarker(option);
+//            currentMarker.showInfoWindow();
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)             // Sets the center of the map to location user
                     .zoom(15)                   // Sets the zoom
                     .bearing(90)                // Sets the orientation of the camera to east
-                    .tilt(40)                   // Sets the tilt of the camera to 30 degrees
+                    .tilt(45)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
 
-    private String getNameOfProvince (LatLng latLng){
+    private String getNameOfProvince(LatLng latLng){
         android.location.Geocoder geoCoder = new Geocoder(getContext(), Locale.getDefault());
         String fnialAddress = "";
 
@@ -272,9 +279,15 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
             String country = addressList.get(0).getCountryName();
             String postalCode = addressList.get(0).getPostalCode();
             String knownName = addressList.get(0).getFeatureName();
-            if(address == null){
-                fnialAddress = district + country;
-            }
+            if(address == null || address.equals("Unnamed Road"))
+                address = "";
+            if(city == null)
+                city = "";
+            if(state == null)
+                state = "";
+            if(district == null)
+                district = "";
+
             fnialAddress = address + " " + district + " " + city + " " + state;
         } catch (IOException e) {}
         catch (NullPointerException e) {}
@@ -292,5 +305,152 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView {
     @Override
     public void dissProgressBar() {
         myProgress.dismiss();
+    }
+
+    @Override
+    public void returnTrip(ArrayList<Trip> currentTrips) {
+
+//        Toast.makeText(getContext(), "AA: " + currentTrips.size(), Toast.LENGTH_LONG).show();
+        for (int i = 0; i < currentTrips.size(); i++){
+            currentTripsMap = currentTrips;
+        }
+        getJSONPolyline(currentTripsMap);
+    }
+
+    public void getJSONPolyline(ArrayList<Trip> currentTripsMap){
+        String url = "";
+        for (int i = 0; i < currentTripsMap.size(); i++){
+            currentTrip = new  Trip(currentTripsMap.get(i).getTripId(), currentTripsMap.get(i).getUserId(), currentTripsMap.get(i).getTitle(),
+                    currentTripsMap.get(i).getDescription(), currentTripsMap.get(i).getDate_start(), currentTripsMap.get(i).getSlot(),
+                    currentTripsMap.get(i).getStart_lat(), currentTripsMap.get(i).getEnd_lat(), currentTripsMap.get(i).getStart_lng(),
+                    currentTripsMap.get(i).getEnd_lng(), currentTripsMap.get(i).getListLatLng(), currentTripsMap.get(i).getStatus(), currentTripsMap.get(i).getDistance());
+
+            latLngStart = new LatLng(currentTrip.getStart_lat(), currentTrip.getStart_lng());
+            latLngEnd = new LatLng(currentTrip.getEnd_lat(), currentTrip.getEnd_lng());
+
+            distance = currentTripsMap.get(i).getDistance();
+            distance = (double) Math.round(distance * 100) / 100;
+
+//            drawPolyline(latLngStart, latLngEnd);
+
+//            option = new MarkerOptions();
+//            option.title(distance + " km");
+//            option.snippet(getNameOfProvince(latLngEnd));
+//            option.position(new LatLng(latLngStart.latitude, latLngStart.longitude));
+//            option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+//            currentMarker = googleMap.addMarker(option);
+//            currentMarker.showInfoWindow();
+
+            if(i == 0){
+                googleMap.addMarker(new MarkerOptions()
+                        .title("Click để xem thông tin chi tiết")
+                        .snippet(distance + " km")
+                        .position(new LatLng(latLngStart.latitude, latLngStart.longitude))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            }
+
+            googleMap.addMarker(new MarkerOptions()
+                    .title("Click để xem thông tin chi tiết")
+                    .snippet(distance + " km")
+                    .position(new LatLng(latLngStart.latitude, latLngStart.longitude))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+
+
+        }
+    }
+
+    public void drawPolyline(LatLng latLngStart, LatLng latLngEnd){
+
+        String url = "https://maps.googleapis.com/maps/api/directions/json?origin="
+                + latLngStart.latitude + "," + latLngStart.longitude + "&destination=" + latLngEnd.latitude + "," + latLngEnd.longitude;
+        StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonRoutes = jsonObject.getJSONArray("routes");
+
+                    for (int i = 0; i < jsonRoutes.length(); i++){
+                        JSONObject jsonRoute = jsonRoutes.getJSONObject(i);
+                        JSONObject overview_polylineJson = jsonRoute.getJSONObject("overview_polyline");
+                        points = PolyUtil.decode(overview_polylineJson.getString("points"));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+//                polylinePaths = new ArrayList<>();
+                PolylineOptions polylineOptions = new PolylineOptions().
+                        geodesic(true).
+                        color(Color.RED).
+                        width(8);
+                for (int i = 0; i < points.size(); i++)
+                    polylineOptions.add(points.get(i));
+//                polylinePaths.add(googleMap.addPolyline(polylineOptions));
+                polyline = googleMap.addPolyline(polylineOptions);
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+//        if (marker.equals(currentMarker))
+//        {
+//            Toast.makeText(getContext(), marker.getSnippet(),Toast.LENGTH_LONG).show();
+//        }
+        if(polyline != null)
+            polyline.remove();
+
+        LatLng latLngStart;
+        LatLng latLngEnd;
+        for (int i = 0; i < currentTripsMap.size(); i++){
+            if(currentTripsMap.get(i).getStart_lat() == marker.getPosition().latitude &&
+                    currentTripsMap.get(i).getStart_lng() == marker.getPosition().longitude){
+                latLngStart = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                latLngEnd = new LatLng(currentTripsMap.get(i).getEnd_lat(), currentTripsMap.get(i).getEnd_lng());
+                drawPolyline(latLngStart, latLngEnd);
+                break;
+            }
+        }
+
+        marker.showInfoWindow();
+        return true;
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if(polyline != null)
+            polyline.remove();
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+
+        ShowInfoTripFragment showInfoTripFragment = new ShowInfoTripFragment();
+//        this.getFragmentManager().beginTransaction()
+//                .replace(R.id.quick_search_fragment, showInfoTripFragment)
+//                .addToBackStack(null)
+//                .commit();
+//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+//        transaction.replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
+        FrameLayout frameLayout;
+        frameLayout = (FrameLayout) getActivity().findViewById(R.id.quick_search_fragment);
+        frameLayout.setVisibility(View.INVISIBLE);
+//        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
     }
 }

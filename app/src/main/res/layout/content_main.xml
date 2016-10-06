@@ -31,6 +31,7 @@
         />
 
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="TÌM CHUYẾN ĐI"
@@ -43,6 +44,7 @@
         android:layout_marginRight="20dp"/>
 
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="ĐĂNG BÀI"
