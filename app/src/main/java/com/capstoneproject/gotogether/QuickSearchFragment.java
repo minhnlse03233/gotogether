@@ -446,10 +446,10 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
 //        transaction.replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
-        FrameLayout frameLayout;
-        frameLayout = (FrameLayout) getActivity().findViewById(R.id.quick_search_fragment);
-        frameLayout.setVisibility(View.INVISIBLE);
-//        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
+//        FrameLayout frameLayout;
+//        frameLayout = (FrameLayout) getActivity().findViewById(R.id.quick_search_fragment);
+//        frameLayout.setVisibility(View.INVISIBLE);
+        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
 //        FragmentManager fragmentManager = getFragmentManager();
 //        fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
     }
