@@ -124,6 +124,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
             profile = Profile.getCurrentProfile();
             iLoginPresenter.onSuccess(profile.getId());
             btnLogin.setVisibility(View.INVISIBLE);
+            btnPhoneLogin.setVisibility(View.INVISIBLE);
         }
     }
 
