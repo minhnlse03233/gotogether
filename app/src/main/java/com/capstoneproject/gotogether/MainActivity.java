@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.login.LoginManager;
@@ -105,8 +106,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        FrameLayout frameLayout;
-        frameLayout = (FrameLayout) findViewById(R.id.quick_search_fragment);
+        RelativeLayout frameLayout;
+        frameLayout = (RelativeLayout) findViewById(R.id.quick_search_fragment);
         if((frameLayout == null && fragmentIsShow == false) || (frameLayout != null && fragmentIsShow == false))
             super.onBackPressed();
         else {
