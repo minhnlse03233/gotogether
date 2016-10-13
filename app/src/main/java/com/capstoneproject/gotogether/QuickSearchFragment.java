@@ -17,7 +17,9 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -53,7 +55,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class QuickSearchFragment extends Fragment implements IQuickSearchView, GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMyLocationChangeListener, View.OnClickListener {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -63,6 +65,7 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
 
     private GoogleMap googleMap;
     MapView mapView;
+    RelativeLayout layoutListView, layoutGMap;
     private ProgressDialog myProgress;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     private List<Polyline> polylinePaths = new ArrayList<>();
@@ -75,6 +78,7 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
     Marker currentMarker;
     double distance;
     Polyline polyline;
+    Button btnListTrip;
 
     IQuickSearchPresenter iQuickSearchPresenter;
 
@@ -138,6 +142,12 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_quick_search, container, false);
 
+        btnListTrip = (Button) rootView.findViewById(R.id.btn_list_trip);
+        btnListTrip.setOnClickListener(this);
+        btnListTrip.setText("DANH SÁCH CHUYẾN ĐI");
+
+        layoutListView = (RelativeLayout) rootView.findViewById(R.id.list_trip);
+        layoutGMap = (RelativeLayout) rootView.findViewById(R.id.gMap);
 
         mapView = (MapView) rootView.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -354,9 +364,6 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
                     .snippet(distance + " km")
                     .position(new LatLng(latLngStart.latitude, latLngStart.longitude))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-
-
         }
     }
 
@@ -436,21 +443,59 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-
         ShowInfoTripFragment showInfoTripFragment = new ShowInfoTripFragment();
-//        this.getFragmentManager().beginTransaction()
-//                .replace(R.id.quick_search_fragment, showInfoTripFragment)
-//                .addToBackStack(null)
-//                .commit();
-//        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//        transaction.replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
-//        FrameLayout frameLayout;
-//        frameLayout = (FrameLayout) getActivity().findViewById(R.id.quick_search_fragment);
-//        frameLayout.setVisibility(View.INVISIBLE);
-        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
+//        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onMyLocationChange(Location location) {
+        LatLng myChange = new LatLng(location.getLatitude(), location.getLongitude());
+        Toast.makeText(getContext(), "Vi tri thay doi: " + myChange.toString(),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int wiget = v.getId();
+        switch (wiget){
+            case R.id.btn_list_trip:
+//                layoutListView.setVisibility(View.VISIBLE);
+//                layoutGMap.setVisibility(View.INVISIBLE);
+
+//                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layoutGMap.getLayoutParams();
+//                Toast.makeText(getContext(), "Vi tri thay doi: " + layoutListView.getHeight(),Toast.LENGTH_LONG).show();
+//                params.height = layoutGMap.getHeight() / 2;
+//                params.width = layoutGMap.getWidth();
+                resizeFragment();
+                changeButtonText();
+                break;
+        }
+    }
+
+    public void changeButtonText(){
+        if(btnListTrip.getText().toString().equals("DANH SÁCH CHUYẾN ĐI")){
+            btnListTrip.setText("ĐÓNG DANH SÁCH");
+        }
+        else{
+            btnListTrip.setText("DANH SÁCH CHUYẾN ĐI");
+        }
+    }
+
+    public void resizeFragment(){
+        RelativeLayout.LayoutParams paramsGMap = (RelativeLayout.LayoutParams) layoutGMap.getLayoutParams();
+        RelativeLayout.LayoutParams paramsListView = (RelativeLayout.LayoutParams) layoutListView.getLayoutParams();
+        if(btnListTrip.getText().toString().equals("DANH SÁCH CHUYẾN ĐI")){
+            paramsGMap.height = layoutGMap.getHeight() / 2;
+            paramsGMap.width = layoutGMap.getWidth();
+            paramsListView.height = layoutGMap.getHeight() / 2;
+            paramsListView.width = layoutGMap.getWidth();
+        }
+        else{
+            paramsGMap.height = layoutGMap.getHeight() * 2;
+            paramsGMap.width = layoutGMap.getWidth();
+            paramsListView.height = 0;
+            paramsListView.width = 0;
+        }
     }
 }

@@ -2,12 +2,15 @@ package com.capstoneproject.gotogether;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.capstoneproject.gotogether.model.User;
+import com.capstoneproject.gotogether.presenter.ConnectionReceiver;
 import com.capstoneproject.gotogether.presenter.login.ILoginPresenter;
 import com.capstoneproject.gotogether.presenter.login.LoginPresenter;
 import com.capstoneproject.gotogether.presenter.register.IRegisterPresenter;
@@ -53,6 +57,7 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
     BigInteger userId;
     Profile profile;
     public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 100;
+    ConnectionReceiver connectionReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,52 +85,74 @@ public class LoginActivity extends AppCompatActivity implements ILoginView, IReg
         iRegisterPresenter = new RegisterPresenter(this);
         //textView.setText(AccessToken.getCurrentAccessToken().toString());
 
-        if (AccessToken.getCurrentAccessToken() == null) {
-            btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                @Override
-                public void onSuccess(LoginResult loginResult) {
-                    GraphRequest request = GraphRequest.newMeRequest(
-                            loginResult.getAccessToken(),
-                            new GraphRequest.GraphJSONObjectCallback() {
-                                @Override
-                                public void onCompleted(JSONObject object, GraphResponse response) {
-                                    try {
-                                        id = object.getString("id");
-                                        gender = object.getString("gender");
-                                        name = object.getString("name");
-                                        iLoginPresenter.onSuccess(id);
-                                        btnLogin.setVisibility(View.INVISIBLE);
-                                        emaill = object.getString("email");
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
+        connectionReceiver = new ConnectionReceiver(){
+            @Override
+            protected void checkConnection(boolean isConnect) {
+                if(isConnect == true){
+                    if (AccessToken.getCurrentAccessToken() == null) {
+                        btnLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                            @Override
+                            public void onSuccess(LoginResult loginResult) {
+                                GraphRequest request = GraphRequest.newMeRequest(
+                                        loginResult.getAccessToken(),
+                                        new GraphRequest.GraphJSONObjectCallback() {
+                                            @Override
+                                            public void onCompleted(JSONObject object, GraphResponse response) {
+                                                try {
+                                                    id = object.getString("id");
+                                                    gender = object.getString("gender");
+                                                    name = object.getString("name");
+                                                    iLoginPresenter.onSuccess(id);
+                                                    btnLogin.setVisibility(View.INVISIBLE);
+                                                    emaill = object.getString("email");
 
-                    Bundle parameters = new Bundle();
-                    parameters.putString("fields", "id,name,email,gender,birthday");
-                    request.setParameters(parameters);
-                    request.executeAsync();
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+
+                                Bundle parameters = new Bundle();
+                                parameters.putString("fields", "id,name,email,gender,birthday");
+                                request.setParameters(parameters);
+                                request.executeAsync();
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                iLoginPresenter.onCancel();
+                            }
+
+                            @Override
+                            public void onError(FacebookException error) {
+                                iLoginPresenter.onError();
+                            }
+                        });
+                    }
+                    else {
+                        profile = Profile.getCurrentProfile();
+                        iLoginPresenter.onSuccess(profile.getId());
+                        btnLogin.setVisibility(View.INVISIBLE);
+                        btnPhoneLogin.setVisibility(View.INVISIBLE);
+                    }
                 }
-
-                @Override
-                public void onCancel() {
-                    iLoginPresenter.onCancel();
+                else{
+                    new AlertDialog.Builder(LoginActivity.this).setTitle("Kết Nối Mạng").setMessage("Vui lòng kiểm tra lại đường truyền mạng").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            System.exit(0);
+                        }
+                    }).show();
+                    btnLogin.setVisibility(View.INVISIBLE);
+                    btnPhoneLogin.setVisibility(View.INVISIBLE);
                 }
+            }
+        };
 
-                @Override
-                public void onError(FacebookException error) {
-                    iLoginPresenter.onError();
-                }
-            });
-        }
-        else {
-            profile = Profile.getCurrentProfile();
-            iLoginPresenter.onSuccess(profile.getId());
-            btnLogin.setVisibility(View.INVISIBLE);
-            btnPhoneLogin.setVisibility(View.INVISIBLE);
-        }
+        IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        intentFilter.setPriority(999);
+        getApplicationContext().registerReceiver(connectionReceiver, intentFilter);
     }
 
 
