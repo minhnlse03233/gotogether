@@ -8,5 +8,5 @@ import com.google.android.gms.maps.model.LatLng;
 public interface IQuickSearchPresenter {
     void showProgressBar();
     void dissProgressBar();
-    void loadTrip(LatLng currentLocation);
+    void loadTrip(LatLng currentLocation, LatLng endLocation);
 }

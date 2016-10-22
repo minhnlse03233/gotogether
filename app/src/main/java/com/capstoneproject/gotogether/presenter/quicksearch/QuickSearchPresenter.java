@@ -37,8 +37,8 @@ public class QuickSearchPresenter implements IQuickSearchPresenter, IQuickSearch
     }
 
     @Override
-    public void loadTrip(LatLng currentLocation) {
-        iQuickSearchUser.loadTrip(currentLocation);
+    public void loadTrip(LatLng currentLocation, LatLng endLocation) {
+        iQuickSearchUser.loadTrip(currentLocation, endLocation);
     }
 
     @Override

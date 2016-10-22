@@ -37,16 +37,23 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
 
 
     @Override
-    public void loadTrip(LatLng currentLocation) {
-        String lat = currentLocation.latitude + "";
-        String lng = currentLocation.longitude + "";
-        this.execute(lat, lng);
+    public void loadTrip(LatLng currentLocation, LatLng endLocation) {
+        String startLat = currentLocation.latitude + "";
+        String startLng = currentLocation.longitude + "";
+        String endLat = endLocation.latitude + "";
+        String endLng = endLocation.longitude + "";
+//        this.execute(startLat, startLng, endLat, endLng);
+        QuickSearchHelper myTask = null;
+        myTask = new QuickSearchHelper(iQuickSearchResult);
+        myTask.execute(startLat, startLng, endLat, endLng);
     }
 
     @Override
     protected String doInBackground(String... params) {
-        String lat = params[0];
-        String lng = params[1];
+        String startLat = params[0];
+        String startLng = params[1];
+        String endLat = params[2];
+        String endLng = params[3];
         String insertURL = "http://fugotogether.com/sql/quickSearch.php";
         try {
             URL url = new URL(insertURL);
@@ -57,8 +64,10 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
             OutputStream outputStream = httpURLConnection.getOutputStream();
 
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-            String post_data = URLEncoder.encode("lat","UTF-8")+"="+URLEncoder.encode(lat,"UTF-8")+"&"
-                    +URLEncoder.encode("lng","UTF-8")+"="+URLEncoder.encode(lng,"UTF-8");
+            String post_data  =  URLEncoder.encode("startLat","UTF-8")+"="+URLEncoder.encode(startLat,"UTF-8")+"&"
+                                +URLEncoder.encode("startLng","UTF-8")+"="+URLEncoder.encode(startLng,"UTF-8")+"&"
+                                +URLEncoder.encode("endLat","UTF-8")+"="+URLEncoder.encode(endLat,"UTF-8")+"&"
+                                +URLEncoder.encode("endLng","UTF-8")+"="+URLEncoder.encode(endLng,"UTF-8");
             bufferedWriter.write(post_data);
             bufferedWriter.flush();
             bufferedWriter.close();
@@ -127,11 +136,12 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
                 if(trip.getString("status").equals("1")){
                     status = true;
                 }
-                distance = Double.parseDouble(trip.getString("distance"));
+                distance = Double.parseDouble(trip.getString("distancetostart"));
                 currentTrip = new Trip(tripId, userId, title, description, date_start, slot, start_lat, end_lat, start_lng, end_lng, listLatLng, status, distance);
                 currentTrips.add(currentTrip);
             }
             iQuickSearchResult.returnTrip(currentTrips);
+//            this.cancel(true);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -142,4 +152,11 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
     }
+
+    @Override
+    protected void onCancelled() {
+        // Make sure we clean up if the task is killed
+        this.cancel(true);
+    }
+
 }
