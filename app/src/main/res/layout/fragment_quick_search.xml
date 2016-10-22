@@ -6,52 +6,160 @@
     android:id="@+id/quick_search_fragment">
 
 
-
-    <RelativeLayout
-        android:id="@+id/gMap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView"
+        <RelativeLayout
+            android:id="@+id/gMap"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_above="@+id/list_trip"
+            >
 
-    </RelativeLayout>
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-    <RelativeLayout
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_list_trip"
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/list_trip">
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_list_trip"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"/>
+        </RelativeLayout>
+
+        <!--<fragment-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:name="android.support.v4.app.ListFragment"-->
+            <!--android:id="@+id/list_fragment"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--/>-->
+
+
+        <RelativeLayout
+            android:id="@+id/list_trip"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"/>
-    </RelativeLayout>
+            android:background="@drawable/layout_selector"
+            android:clickable="true">
 
-    <!--<fragment-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="0.5"-->
-        <!--android:name="android.support.v4.app.ListFragment"-->
-        <!--android:id="@+id/list_fragment"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--/>-->
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/listView" />
 
-    <RelativeLayout
-        android:id="@+id/list_trip"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary">
+        </RelativeLayout>
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/listView" />
-    </RelativeLayout>
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/search_box"-->
+            <!--android:orientation="vertical"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="0dp">-->
+
+
+            <!--<EditText-->
+                <!--android:id="@+id/autocomplete_places"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="45dp"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:paddingLeft="40dp"-->
+                <!--android:paddingRight="40dp"-->
+                <!--android:singleLine="true"-->
+                <!--android:background="@drawable/edit_text_style"-->
+                <!--android:textColorHint="@color/grey"-->
+                <!--android:hint="Chọn điểm đến"-->
+                <!--android:drawablePadding="10dp"-->
+                <!--android:textColor="@android:color/primary_text_light" />-->
+                <!--&lt;!&ndash;android:drawableLeft="@drawable/search"/>&ndash;&gt;-->
+
+
+            <!--<ImageView-->
+                <!--android:id="@+id/btn_delete"-->
+                <!--android:layout_width="16dp"-->
+                <!--android:layout_height="16dp"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:src="@drawable/cross"-->
+                <!--android:layout_marginTop="24dp"-->
+                <!--android:layout_marginRight="20dp"-->
+                <!--/>-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/search_icon"-->
+                <!--android:layout_width="16dp"-->
+                <!--android:layout_height="16dp"-->
+                <!--android:src="@drawable/search"-->
+                <!--android:layout_alignTop="@+id/btn_delete"-->
+                <!--android:layout_alignLeft="@+id/autocomplete_places"-->
+                <!--android:layout_alignStart="@+id/autocomplete_places"-->
+                <!--android:layout_marginLeft="14dp"-->
+                <!--android:layout_marginStart="14dp" />-->
+
+            <!--<android.support.v7.widget.RecyclerView-->
+                <!--android:id="@+id/recyclerView"-->
+                <!--android:scrollbars="vertical"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:layout_below="@+id/autocomplete_places"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_alignParentLeft="true"-->
+                <!--android:layout_alignParentStart="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_alignParentEnd="true" />-->
+
+        <!--</RelativeLayout>-->
+
+
+        <RelativeLayout
+            android:id="@+id/search_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/layout_selector"
+            android:clickable="true"
+            >
+            <!--android:background="@drawable/layout_selector">-->
+            <!--android:clickable="true">-->
+
+            <TextView
+                android:id="@+id/text_view_end"
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:hint="Chọn điểm đến"
+                android:textColorHint="@color/grey"
+                android:singleLine="true"
+                android:paddingLeft="45dp"
+                android:paddingRight="10dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:textSize="18dp"
+                android:textColor="@android:color/primary_text_light"
+                />
+
+            <ImageView
+                android:id="@+id/search_icon_tv"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/marker"
+                android:layout_marginLeft="14dp"
+                android:layout_marginStart="14dp" />
+
+        </RelativeLayout>
+
+
 </RelativeLayout>

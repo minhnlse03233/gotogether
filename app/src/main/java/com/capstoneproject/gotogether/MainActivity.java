@@ -2,8 +2,6 @@ package com.capstoneproject.gotogether;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -15,13 +13,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.facebook.login.widget.ProfilePictureView;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity
@@ -32,6 +36,10 @@ public class MainActivity extends AppCompatActivity
     TextView txtName, txtEmail, txtTest;
     Button btnQuickSearch, btnSearch, btnPost;
     boolean fragmentIsShow = false;
+    int PLACE_PICKER_REQUEST = 1;
+//    MapAdapter mapAdapter = MapAdapter.getInstance();
+    GoogleMap googleMap;
+    MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +56,28 @@ public class MainActivity extends AppCompatActivity
         btnPost = (Button) findViewById(R.id.btn_post);
         btnPost.setOnClickListener(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+//
+//        mapAdapter.setGoogleMap(googleMap);
+//        mapAdapter.setMapView(mapView);
+
+//        mapAdapter = new MapAdapter(googleMap, mapView);
+//        mapAdapter.createMap();
+
+//        SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
+        //to save
+//        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(mapAdapter);
+//        prefsEditor.putString("MyMapAdapter", json);
+//        prefsEditor.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,10 +101,9 @@ public class MainActivity extends AppCompatActivity
         name = bundle.getString("name");
         email = bundle.getString("email");
 
-
         ImageView profilePic = (ImageView) headerView.findViewById(R.id.imageView);
         // tranform từ image facebook sang imageView. Hiển thị ảnh hình tròn lên navigation
-        Picasso.with(this).load("https://graph.facebook.com/v2.7/" + id + "/picture?height=120&type=small").transform(new CircleTransform()).resize(65, 70).into(profilePic);
+        Picasso.with(this).load("https://graph.facebook.com/v2.7/" + id + "/picture?height=120&type=small").transform(new CircleTransform()).resize(120, 120).into(profilePic);
         txtName.setText(name);
         txtEmail.setText(email);
 
@@ -106,12 +127,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        RelativeLayout frameLayout;
-        frameLayout = (RelativeLayout) findViewById(R.id.quick_search_fragment);
-        if((frameLayout == null && fragmentIsShow == false) || (frameLayout != null && fragmentIsShow == false))
+        RelativeLayout relativeLayout;
+        relativeLayout = (RelativeLayout) findViewById(R.id.quick_search_fragment);
+        if((relativeLayout == null && fragmentIsShow == false) || (relativeLayout != null && fragmentIsShow == false))
             super.onBackPressed();
         else {
-            frameLayout.setVisibility(View.INVISIBLE);
+            relativeLayout.setVisibility(View.INVISIBLE);
             btnQuickSearch.setVisibility(View.VISIBLE);
             btnSearch.setVisibility(View.VISIBLE);
             btnPost.setVisibility(View.VISIBLE);
@@ -170,14 +191,44 @@ public class MainActivity extends AppCompatActivity
         int wiget = v.getId();
         switch (wiget) {
             case R.id.btn_quick_search:
+                RelativeLayout relativeLayout;
+                relativeLayout = (RelativeLayout) findViewById(R.id.quick_search_fragment);
+                if(relativeLayout == null){
+                    QuickSearchFragment quickSearchFragment = new QuickSearchFragment();
+                    FragmentManager fragmentManager =  getSupportFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.main_activity, quickSearchFragment).commit();
+                }
+                else{
+                    relativeLayout.setVisibility(View.VISIBLE);
+                }
                 btnQuickSearch.setVisibility(View.INVISIBLE);
                 btnSearch.setVisibility(View.INVISIBLE);
                 btnPost.setVisibility(View.INVISIBLE);
                 fragmentIsShow = true;
-                QuickSearchFragment quickSearchFragment = new QuickSearchFragment();
-                FragmentManager fragmentManager =  getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.main_activity, quickSearchFragment).commit();
+                break;
+            case R.id.btn_search:
+                PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+                Intent intent;
+                try {
+                    intent = intentBuilder.build(getApplicationContext());
+                    startActivityForResult(intent, PLACE_PICKER_REQUEST);
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+//        if(requestCode == PLACE_PICKER_REQUEST){
+//            if(resultCode == RESULT_OK){
+//                Place place = PlacePicker.getPlace(data, this);
+//                Toast.makeText(this, "Vi tri: " + place.getName(),Toast.LENGTH_LONG).show();
+////                String address = String.format("Place")
+//            }
+//        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

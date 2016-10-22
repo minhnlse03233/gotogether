@@ -78,15 +78,18 @@ public class LoginHelper extends AsyncTask<String, Void, String> implements ILog
 
     @Override
     protected void onPostExecute(String result) {
-        iLoginResult.loginStatus("Result: " + result);
+//        iLoginResult.loginStatus("Result: " + result);
         String id = "";
         try {
-            JSONObject jsonObject = new JSONObject(result);
-            JSONArray jsonArray = jsonObject.getJSONArray(LoginConfig.JSON_ARRAY);
-            if(jsonArray.length() == 0)
-                iLoginResult.loginStatus("NoActive");
-            else
-                iLoginResult.loginStatus("Active");
+            if(!result.equals("")){
+                JSONObject jsonObject = new JSONObject(result);
+                JSONArray jsonArray = jsonObject.getJSONArray(LoginConfig.JSON_ARRAY);
+                if(jsonArray.length() == 0)
+                    iLoginResult.loginStatus("NoActive");
+                else
+                    iLoginResult.loginStatus("Active");
+            }
+
 //            JSONObject collegeData = jsonArray.getJSONObject(0);
 //            id = collegeData.getString(LoginConfig.KEY_ID);
 
