@@ -2,6 +2,7 @@ package com.capstoneproject.gotogether;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,22 +15,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,8 +32,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.capstoneproject.gotogether.adapter.PlacesAutoCompleteAdapter;
-import com.capstoneproject.gotogether.adapter.RecycleItemClickListener;
 import com.capstoneproject.gotogether.adapter.TripAdapter;
 import com.capstoneproject.gotogether.model.Trip;
 import com.capstoneproject.gotogether.presenter.quicksearch.IQuickSearchPresenter;
@@ -51,11 +41,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceBuffer;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -65,12 +51,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -108,22 +94,15 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
     Polyline polyline;
     Button btnListTrip;
     ListView listView;
-    EditText mAutocompleteView;
-    ImageView btnDelete;
-//    protected GoogleApiClient mGoogleApiClient;
-//    PlacesAutoCompleteAdapter mAutoCompleteAdapter;
-//    RecyclerView mRecyclerView;
-//    LinearLayoutManager mLinearLayoutManager;
-//    LatLngBounds myBound = new LatLngBounds(
-//            new LatLng(-0, 0), new LatLng(0, 0));
     int PLACE_PICKER_REQUEST = 1;
     TextView tvEnd;
     RelativeLayout searchTextView;
     LatLng endLocation;
     IQuickSearchPresenter iQuickSearchPresenter;
-//    MarkerOptions endMarker;
     Marker endMarker;
-
+    int gMapHeight;
+    int listViewHeight;
+    SlidingUpPanelLayout slidingLayout;
 
     public QuickSearchFragment() {}
 
@@ -181,87 +160,21 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_quick_search, container, false);
-
-//        mAutocompleteView = (EditText)rootView.findViewById(R.id.autocomplete_places);
-//        btnDelete = (ImageView)rootView.findViewById(R.id.btn_delete);
-//        btnDelete.setOnClickListener(this);
         tvEnd = (TextView) rootView.findViewById(R.id.text_view_end);
         searchTextView = (RelativeLayout) rootView.findViewById(R.id.search_text_view);
         searchTextView.setOnClickListener(this);
 
-//        searchTextView.setPressed(true);
-//        searchTextView.setHovered(true);
-//        searchTextView.setFocusable(true);
-
-//        buildGoogleAPIClient();
-//        mAutoCompleteAdapter =  new PlacesAutoCompleteAdapter(this, R.layout.row_tip,
-//                mGoogleApiClient, myBound  , null);
-//
-//        mRecyclerView=(RecyclerView)rootView.findViewById(R.id.recyclerView);
-//        mLinearLayoutManager=new LinearLayoutManager(getActivity());
-//        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-//        mRecyclerView.setAdapter(mAutoCompleteAdapter);
-
-//        mAutocompleteView.setOnClickListener(this);
-
-//        mAutocompleteView.addTextChangedListener(new TextWatcher(){
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
-//                    mAutoCompleteAdapter.getFilter().filter(s.toString());
-//                }else if(!mGoogleApiClient.isConnected()){
-//                    Toast.makeText(getActivity().getApplicationContext(), "Không thể kết nối Google API",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//            }
-//        });
-//
-//        mRecyclerView.addOnItemTouchListener(
-//                new RecycleItemClickListener(this, new RecycleItemClickListener.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(View view, int position) {
-//                        final PlacesAutoCompleteAdapter.PlaceAutocomplete item = mAutoCompleteAdapter.getItem(position);
-//                        final String placeId = String.valueOf(item.placeId);
-//                        Log.i("TAG", "Autocomplete item selected: " + item.description);
-//
-//                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-//                                .getPlaceById(mGoogleApiClient, placeId);
-//                        placeResult.setResultCallback(new ResultCallback<PlaceBuffer>() {
-//                            @Override
-//                            public void onResult(PlaceBuffer places) {
-//                                if(places.getCount() == 1){
-//                                    //Do the things here on Click.....
-//                                    Toast.makeText(getActivity().getApplicationContext(),String.valueOf(places.get(0).getLatLng()),Toast.LENGTH_SHORT).show();
-//                                    //Toast.makeText(getActivity().getApplicationContext(),String.valueOf(places.get(0).getAddress()),Toast.LENGTH_SHORT).show();
-//                                    mAutocompleteView.setText("");
-//                                    mAutocompleteView.setText(String.valueOf(places.get(0).getAddress()));
-//                                }else {
-//                                    Toast.makeText(getActivity().getApplicationContext(),"Đã xảy ra lỗi, xin tắt ứng dụng rồi mở lại",Toast.LENGTH_SHORT).show();
-//                                }
-//                            }
-//                        });
-//                        Log.i("TAG", "Clicked: " + item.description);
-//                        Log.i("TAG", "Called getPlaceById to get Place details for " + item.placeId);
-//                    }
-//                })
-//        );
+        slidingLayout = (SlidingUpPanelLayout)rootView.findViewById(R.id.sliding_layout);
+//        slidingLayout.setPanelSlideListener(onSlideListener());
 
         btnListTrip = (Button) rootView.findViewById(R.id.btn_list_trip);
         btnListTrip.setOnClickListener(this);
         btnListTrip.setText("DANH SÁCH CHUYẾN ĐI");
+        btnListTrip.setVisibility(View.INVISIBLE);
 
         layoutListView = (RelativeLayout) rootView.findViewById(R.id.list_trip);
         layoutGMap = (RelativeLayout) rootView.findViewById(R.id.gMap);
         listView = (ListView) rootView.findViewById(R.id.listView);
-
 
         mapView = (MapView) rootView.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -284,7 +197,7 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
                 // position on right bottom
                 rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                 rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-                rlp.setMargins(0, 700, 22, 0);
+                rlp.setMargins(0, 700, 21, 0);
 
                 googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 googleMap.getUiSettings().setZoomControlsEnabled(true);
@@ -454,21 +367,23 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
             currentTripsMap = currentTrips;
             getJSONPolyline(currentTripsMap);
             listView.setAdapter(new TripAdapter(getContext(), currentTripsMap));
+
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    LatLng latLngStart = new LatLng(currentTripsMap.get(position).getStart_lat(), currentTripsMap.get(position).getStart_lng());;
+                    slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    LatLng latLngStart = new LatLng(currentTripsMap.get(position).getStart_lat(), currentTripsMap.get(position).getStart_lng());
                     LatLng latLngEnd = new LatLng(currentTripsMap.get(position).getEnd_lat(), currentTripsMap.get(position).getEnd_lng());;
                     if(polyline != null)
                         polyline.remove();
                     drawPolyline(latLngStart, latLngEnd);
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(latLngStart)             // Sets the center of the map to location user
-                            .zoom(14)                   // Sets the zoom
-//                        .bearing(90)                // Sets the orientation of the camera to east
-                            .tilt(45)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                    CameraPosition cameraPosition = new CameraPosition.Builder()
+//                            .target(latLngStart)             // Sets the center of the map to location user
+//                            .zoom(14)                   // Sets the zoom
+////                        .bearing(90)                // Sets the orientation of the camera to east
+//                            .tilt(45)                   // Sets the tilt of the camera to 30 degrees
+//                            .build();                   // Creates a CameraPosition from the builder
+//                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));`
                 }
             });
         }
@@ -482,13 +397,23 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
         }
     }
 
+    @Override
+    public void returnNoTripAvai() {
+        new AlertDialog.Builder(getContext()).setTitle("Thông báo").setMessage("Không có chuyến đi nào tới " + getNameOfProvince(endLocation)).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).show();
+    }
+
     public void getJSONPolyline(ArrayList<Trip> currentTripsMap){
         String url = "";
         for (int i = 0; i < currentTripsMap.size(); i++){
             currentTrip = new  Trip(currentTripsMap.get(i).getTripId(), currentTripsMap.get(i).getUserId(), currentTripsMap.get(i).getTitle(),
                     currentTripsMap.get(i).getDescription(), currentTripsMap.get(i).getDate_start(), currentTripsMap.get(i).getSlot(),
                     currentTripsMap.get(i).getStart_lat(), currentTripsMap.get(i).getEnd_lat(), currentTripsMap.get(i).getStart_lng(),
-                    currentTripsMap.get(i).getEnd_lng(), currentTripsMap.get(i).getListLatLng(), currentTripsMap.get(i).getStatus(), currentTripsMap.get(i).getDistance());
+                    currentTripsMap.get(i).getEnd_lng(), currentTripsMap.get(i).getListLatLng(), currentTripsMap.get(i).getStatus(), currentTripsMap.get(i).getDistance(), currentTripsMap.get(i).getPrice());
 
             latLngStart = new LatLng(currentTrip.getStart_lat(), currentTrip.getStart_lng());
             latLngEnd = new LatLng(currentTrip.getEnd_lat(), currentTrip.getEnd_lng());
@@ -631,10 +556,12 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        Activity activity = (Activity) getContext();
+        android.app.FragmentManager fragmentManager = activity.getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ShowInfoTripFragment showInfoTripFragment = new ShowInfoTripFragment();
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.quick_search_fragment, showInfoTripFragment).commit();
-//        Toast.makeText(getContext(), "Mở ra thông tin chi tiết",Toast.LENGTH_LONG).show();
+        fragmentTransaction.replace(R.id.quick_search_fragment, showInfoTripFragment);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -648,44 +575,28 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
         int wiget = v.getId();
         switch (wiget){
             case R.id.btn_list_trip:
-//                layoutListView.setVisibility(View.VISIBLE);
-//                layoutGMap.setVisibility(View.INVISIBLE);
-
-//                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layoutGMap.getLayoutParams();
-//                Toast.makeText(getContext(), "Vi tri thay doi: " + layoutListView.getHeight(),Toast.LENGTH_LONG).show();
-//                params.height = layoutGMap.getHeight() / 2;
-//                params.width = layoutGMap.getWidth();
                 resizeFragment();
                 changeButtonText();
                 break;
-//            case R.id.btn_delete:
-//                mAutocompleteView.setText("");
-//                break;
             case R.id.search_text_view:
-                iQuickSearchPresenter.showProgressBar();
                 callPlacePicker();
                 break;
         }
     }
 
     public void callPlacePicker(){
-//        iQuickSearchPresenter.showProgressBar();
-//        myProgress = new ProgressDialog(getContext());
-//        myProgress.setTitle("Đang tải ...");
-//        myProgress.setMessage("Xin vui lòng đợi");
-//        myProgress.setCancelable(false);
-//        myProgress.show();
+        iQuickSearchPresenter.showProgressBar();
         PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
         Intent intent;
         try {
             intent = intentBuilder.build(getContext());
             startActivityForResult(intent, PLACE_PICKER_REQUEST);
+            iQuickSearchPresenter.dissProgressBar();
         } catch (GooglePlayServicesRepairableException e) {
             e.printStackTrace();
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
-        iQuickSearchPresenter.dissProgressBar();
     }
 
     @Override
@@ -716,59 +627,17 @@ public class QuickSearchFragment extends Fragment implements IQuickSearchView, G
     public void resizeFragment(){
         RelativeLayout.LayoutParams paramsGMap = (RelativeLayout.LayoutParams) layoutGMap.getLayoutParams();
         RelativeLayout.LayoutParams paramsListView = (RelativeLayout.LayoutParams) layoutListView.getLayoutParams();
-//        View childView = listView.getAdapter().getView(1, null, listView);
-//        childView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY));
-//        Toast.makeText(getContext(), "Do dai: " + listView.getPaddingTop() + listView.getPaddingBottom(),Toast.LENGTH_LONG).show();
-
         if(btnListTrip.getText().toString().equals("DANH SÁCH CHUYẾN ĐI")){
-//            if(currentTripsMap.size() == 1){
-//                paramsListView.height = 180;
-//                paramsGMap.height = layoutGMap.getHeight() - 90;
-//            }
-//            else if(currentTripsMap.size() == 2){
-//                paramsListView.height = 270;
-//                paramsGMap.height = layoutGMap.getHeight() - 180;
-//            }
-//            else if(currentTripsMap.size() == 3){
-//                paramsListView.height = 360;
-//                paramsGMap.height = layoutGMap.getHeight() - 270;
-//            }else{
-                paramsListView.height = layoutGMap.getHeight() / 2;
-                paramsGMap.height = layoutGMap.getHeight() / 2;
-//            }
-            paramsGMap.width = layoutGMap.getWidth();
-            paramsListView.width = layoutGMap.getWidth();
+            gMapHeight = layoutGMap.getHeight();
+            listViewHeight = layoutListView.getHeight();
+            paramsListView.height = listViewHeight + gMapHeight;
+
         }
         else{
-//            if(currentTripsMap.size() == 1){
-//                paramsGMap.height = layoutGMap.getHeight() + 180;
-//            }
-//            else if(currentTripsMap.size() == 2){
-//                paramsGMap.height = layoutGMap.getHeight() + 270;
-//            }
-//            else if(currentTripsMap.size() == 3){
-//                paramsGMap.height = layoutGMap.getHeight() + 360;
-//            }
-//            else{
-                paramsGMap.height = layoutGMap.getHeight() * 2;
-//            }
-            paramsListView.height = 0;
-            paramsListView.width = 0;
-            paramsGMap.width = layoutGMap.getWidth();
+            paramsListView.height = listViewHeight;
+            paramsGMap.height = gMapHeight;
         }
     }
-
-
-//    protected synchronized void buildGoogleAPIClient(){
-//        mGoogleApiClient = new GoogleApiClient
-//                .Builder(getContext())
-//                .addApi(Places.GEO_DATA_API)
-//                .addApi(Places.PLACE_DETECTION_API)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .build();
-//        mGoogleApiClient.connect();
-//    }
 
     @Override
     public void onConnected(Bundle bundle) {

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 
 
-public class ShowInfoTripFragment extends Fragment {
+public class ShowInfoTripFragment extends android.app.Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -18,7 +18,6 @@ public class ShowInfoTripFragment extends Fragment {
     private String mParam2;
 
     public ShowInfoTripFragment() {
-
     }
 
     public static ShowInfoTripFragment newInstance(String param1, String param2) {

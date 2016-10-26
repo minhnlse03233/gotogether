@@ -1,5 +1,7 @@
 package com.capstoneproject.gotogether.adapter;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import com.capstoneproject.gotogether.CircleTransform;
 import com.capstoneproject.gotogether.R;
+import com.capstoneproject.gotogether.ShowInfoTripFragment;
 import com.capstoneproject.gotogether.model.Trip;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Picasso;
@@ -24,17 +27,21 @@ import java.util.Locale;
 /**
  * Created by MinhNL on 10/13/2016.
  */
-public class TripAdapter extends BaseAdapter {
+public class TripAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Trip> currentTripsMap;
-
+//    ITripInforView iTripInforView;
 
     public TripAdapter(Context context, ArrayList<Trip> currentTripsMap) {
         this.context = context;
         this.currentTripsMap = currentTripsMap;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
+
+//    public TripAdapter(ITripInforView iTripInforView){
+//        this.iTripInforView = iTripInforView;
+//    }
 
     @Override
     public int getCount() {
@@ -74,17 +81,22 @@ public class TripAdapter extends BaseAdapter {
         latLngStart = new LatLng(trip.getStart_lat(), trip.getStart_lng());
         latLngEnd = new LatLng(trip.getEnd_lat(), trip.getEnd_lng());
         viewHolder.title.setText(trip.getTitle());
-        viewHolder.start.setText("Điểm đi: ");
-        viewHolder.end.setText("Điểm đến: ");
-//        viewHolder.start.setText("Điểm đi: " + formatAddress(getNameOfProvince(latLngStart)));
-//        viewHolder.end.setText("Điểm đến: " + formatAddress(getNameOfProvince(latLngEnd)));
-        viewHolder.date_start.setText("Ngày đi: " + formatDate(trip.getDate_start()));
+        viewHolder.start.setText("ĐIỂM ĐI: ");
+        viewHolder.end.setText("ĐIỂM ĐẾN: ");
+//        viewHolder.start.setText("Nơi đi: " + formatAddress(getNameOfProvince(latLngStart)));
+//        viewHolder.end.setText("Nơi đến: " + formatAddress(getNameOfProvince(latLngEnd)));
+        viewHolder.date_start.setText("NGÀY ĐI: " + formatDate(trip.getDate_start()));
 //        viewHolder.avatar.setImageBitmap(yourSelectedImage);
         Picasso.with(context).load("https://graph.facebook.com/v2.7/" + trip.getUserId() + "/picture?height=120&type=small").transform(new CircleTransform()).resize(48, 48).into(viewHolder.avatar);
         viewHolder.view_trip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //
+                Activity activity = (Activity) context;
+                android.app.FragmentManager fragmentManager = activity.getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                ShowInfoTripFragment showInfoTripFragment = new ShowInfoTripFragment();
+                fragmentTransaction.replace(R.id.quick_search_fragment, showInfoTripFragment);
+                fragmentTransaction.commit();
             }
         });
 
@@ -120,8 +132,7 @@ public class TripAdapter extends BaseAdapter {
             if(district == null)
                 district = "";
 
-//            finalAddress = address + " " + district + " " + city + " " + state;
-            finalAddress = address + " " + district;
+            finalAddress = address + " " + district + " " + city + " " + state;
         } catch (IOException e) {}
         catch (NullPointerException e) {}
         if(finalAddress != null)

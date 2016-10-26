@@ -1,0 +1,288 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.capstoneproject.gotogether.PostTripFragment"
+    android:id="@+id/post_trip">
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <RelativeLayout
+        android:id="@+id/gMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/post_option"
+        android:animateLayoutChanges="true">
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/search_text_start"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/layout_selector"
+        android:clickable="true">
+        <!--android:background="@drawable/layout_selector">-->
+        <!--android:clickable="true">-->
+
+        <TextView
+            android:id="@+id/text_view_start"
+            android:layout_width="match_parent"
+            android:layout_height="22dp"
+            android:hint="Chọn điểm đi"
+            android:textColorHint="@color/grey"
+            android:singleLine="true"
+            android:paddingLeft="45dp"
+            android:paddingRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textSize="18dp"
+
+            android:textColor="@android:color/primary_text_light"
+            />
+
+        <ImageView
+            android:id="@+id/search_icon_tv"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/marker"
+            android:layout_marginLeft="14dp"
+            android:layout_marginStart="14dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/search_text_end"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/layout_selector"
+        android:clickable="true"
+        android:layout_below="@+id/search_text_start"
+        >
+        <!--android:background="@drawable/layout_selector">-->
+        <!--android:clickable="true">-->
+
+        <TextView
+            android:id="@+id/text_view_end"
+            android:layout_width="match_parent"
+            android:layout_height="22dp"
+            android:hint="Chọn điểm đến"
+            android:textColorHint="@color/grey"
+            android:singleLine="true"
+            android:paddingLeft="45dp"
+            android:paddingRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textSize="18dp"
+            android:textColor="@android:color/primary_text_light"
+            />
+
+        <ImageView
+            android:id="@+id/search_icon_tv2"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/marker"
+            android:layout_marginLeft="14dp"
+            android:layout_marginStart="14dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/post_advanced"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/post_option"
+        android:visibility="visible"
+        android:clickable="true"
+        android:animateLayoutChanges="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bg"
+            android:scaleType="centerCrop"
+            android:id="@+id/imageView2"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tiêu đề"
+                    android:singleLine="true"
+                    android:textSize="20dp"
+                    android:layout_marginTop="100dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+            </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/etDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="Mô tả"
+                        android:textSize="20dp"
+                        android:inputType="textMultiLine"/>
+                </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/slot"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Số ghế"
+                            android:textSize="20dp"
+                            android:inputType="numberDecimal"/>
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/price"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Giá"
+                            android:textSize="20dp"
+                            android:inputType="number"/>
+                    </android.support.design.widget.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="Ngày đi: "
+                            android:textSize="20dp"
+                            android:paddingLeft="5dp"
+                            android:paddingTop="15dp"/>
+
+                            <TextView
+                            android:id="@+id/pick_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="20dp"
+                            android:paddingTop="15dp"/>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="5dp"
+                            android:id="@+id/calendar_date"
+                            android:src="@drawable/calendar_date"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="Giờ đi: "
+                            android:textSize="20dp"
+                            android:paddingLeft="5dp"
+                            android:paddingTop="15dp"/>
+
+                        <TextView
+                            android:id="@+id/time_picker"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="20dp"
+                            android:paddingTop="15dp"/>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="10dp"
+                            android:id="@+id/time_pick"
+                            android:src="@drawable/time_picker"
+                            />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </ScrollView>
+
+
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:id="@+id/post_option"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/back"
+            android:id="@+id/back"
+            android:layout_alignParentLeft="true"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+
+            android:id="@+id/post"
+            android:text="Đăng Bài"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/next"
+            android:id="@+id/next"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

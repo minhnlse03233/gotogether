@@ -1,8 +1,18 @@
 package com.capstoneproject.gotogether;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.multidex.MultiDex;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +25,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,11 +46,11 @@ public class MainActivity extends AppCompatActivity
     ProfilePictureView profilePictureView;
     TextView txtName, txtEmail, txtTest;
     Button btnQuickSearch, btnSearch, btnPost;
-    boolean fragmentIsShow = false;
+    boolean fragmentQuickSearchIsShow = false;
+    boolean fragmentPostIsShow = false;
+
     int PLACE_PICKER_REQUEST = 1;
-//    MapAdapter mapAdapter = MapAdapter.getInstance();
-    GoogleMap googleMap;
-    MapView mapView;
+    public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +118,8 @@ public class MainActivity extends AppCompatActivity
         txtName.setText(name);
         txtEmail.setText(email);
 
+        askPermissionsAndShowMyLocation();
+
     }
 
     private void goLoginScreen() {
@@ -127,17 +140,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        RelativeLayout relativeLayout;
-        relativeLayout = (RelativeLayout) findViewById(R.id.quick_search_fragment);
-        if((relativeLayout == null && fragmentIsShow == false) || (relativeLayout != null && fragmentIsShow == false))
+        if(fragmentQuickSearchIsShow == false && fragmentPostIsShow == false)
             super.onBackPressed();
         else {
-            relativeLayout.setVisibility(View.INVISIBLE);
+            RelativeLayout layoutQuickSearch = (RelativeLayout)findViewById(R.id.quick_search_fragment);
+            RelativeLayout layoutPost = (RelativeLayout)findViewById(R.id.post_trip_fragment);
+            if(layoutQuickSearch != null && fragmentQuickSearchIsShow == true){
+                layoutQuickSearch.setVisibility(View.INVISIBLE);
+                fragmentQuickSearchIsShow = false;
+
+            }
+            if(layoutPost != null && fragmentPostIsShow == true){
+                layoutPost.setVisibility(View.INVISIBLE);
+                fragmentPostIsShow = false;
+            }
             btnQuickSearch.setVisibility(View.VISIBLE);
             btnSearch.setVisibility(View.VISIBLE);
             btnPost.setVisibility(View.VISIBLE);
-            fragmentIsShow = false;
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(base);
     }
 
     @Override
@@ -204,7 +230,7 @@ public class MainActivity extends AppCompatActivity
                 btnQuickSearch.setVisibility(View.INVISIBLE);
                 btnSearch.setVisibility(View.INVISIBLE);
                 btnPost.setVisibility(View.INVISIBLE);
-                fragmentIsShow = true;
+                fragmentQuickSearchIsShow = true;
                 break;
             case R.id.btn_search:
                 PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
@@ -218,6 +244,22 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
                 break;
+            case R.id.btn_post:
+                RelativeLayout relativeLayout1;
+                relativeLayout1 = (RelativeLayout) findViewById(R.id.post_trip_fragment);
+                if(relativeLayout1 == null){
+                    PostTripFragment postTripFragment = new PostTripFragment();
+                    FragmentManager fragmentManager =  getSupportFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.main_activity, postTripFragment).commit();
+                }
+                else{
+                    relativeLayout1.setVisibility(View.VISIBLE);
+                }
+                btnQuickSearch.setVisibility(View.INVISIBLE);
+                btnSearch.setVisibility(View.INVISIBLE);
+                btnPost.setVisibility(View.INVISIBLE);
+                fragmentPostIsShow = true;
+                break;
         }
     }
 
@@ -230,5 +272,53 @@ public class MainActivity extends AppCompatActivity
 //            }
 //        }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void askPermissionsAndShowMyLocation() {
+        // Với API >= 23, bạn phải hỏi người dùng cho phép xem vị trí của họ.
+        if (Build.VERSION.SDK_INT >= 23) {
+            int accessCoarsePermission
+                    = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+            int accessFinePermission
+                    = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+            if (accessCoarsePermission != PackageManager.PERMISSION_GRANTED
+                    || accessFinePermission != PackageManager.PERMISSION_GRANTED) {
+                // Các quyền cần người dùng cho phép.
+                String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION};
+                // Hiển thị một Dialog hỏi người dùng cho phép các quyền trên.
+                ActivityCompat.requestPermissions(this, permissions,
+                        REQUEST_ID_ACCESS_COURSE_FINE_LOCATION);
+                return;
+            }else{
+//                Toast.makeText(getContext(), "1..................",Toast.LENGTH_LONG).show();
+            }
+        }else{
+//            Toast.makeText(getContext(), "2..................",Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case REQUEST_ID_ACCESS_COURSE_FINE_LOCATION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    new AlertDialog.Builder(this).setTitle("Tính năng truy cập GPS đã bị từ chối").setMessage("Ứng dụng cần sử dụng GPS, vui lòng chạy lại App").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            askPermissionsAndShowMyLocation();
+                        }
+                    }).show();
+//                    System.exit(0);
+                }
+                break;
+
+        }
     }
 }
