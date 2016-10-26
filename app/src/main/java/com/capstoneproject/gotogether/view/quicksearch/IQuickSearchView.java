@@ -11,4 +11,6 @@ public interface IQuickSearchView {
     void showProgressBar();
     void dissProgressBar();
     void returnTrip(ArrayList<Trip> currentTrips);
+    void returnNoTripAvai();
+
 }

@@ -115,6 +115,7 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
         String listLatLng;
         boolean status = true;
         double distance;
+        double price;
         ArrayList<Trip> currentTrips = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(result);
@@ -137,10 +138,16 @@ public class QuickSearchHelper extends AsyncTask<String,Void,String> implements 
                     status = true;
                 }
                 distance = Double.parseDouble(trip.getString("distancetostart"));
-                currentTrip = new Trip(tripId, userId, title, description, date_start, slot, start_lat, end_lat, start_lng, end_lng, listLatLng, status, distance);
+                price = trip.getDouble("price");
+                currentTrip = new Trip(tripId, userId, title, description, date_start, slot, start_lat, end_lat, start_lng, end_lng, listLatLng, status, distance, price);
                 currentTrips.add(currentTrip);
             }
-            iQuickSearchResult.returnTrip(currentTrips);
+            if (currentTrips.size() > 0){
+                iQuickSearchResult.returnTrip(currentTrips);
+            }else{
+                iQuickSearchResult.returnNoTripAvai();
+            }
+
 //            this.cancel(true);
         } catch (JSONException e) {
             e.printStackTrace();

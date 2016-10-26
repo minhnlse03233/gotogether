@@ -51,7 +51,7 @@ public class LoginHelper extends AsyncTask<String, Void, String> implements ILog
             outputStream.close();
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"iso-8859-1"));
-            String result="";
+            String result = "";
             StringBuilder stringBuilder = new StringBuilder();
             String line="";
             while((line = bufferedReader.readLine())!= null) {
@@ -81,7 +81,7 @@ public class LoginHelper extends AsyncTask<String, Void, String> implements ILog
 //        iLoginResult.loginStatus("Result: " + result);
         String id = "";
         try {
-            if(!result.equals("")){
+            if(result != null){
                 JSONObject jsonObject = new JSONObject(result);
                 JSONArray jsonArray = jsonObject.getJSONArray(LoginConfig.JSON_ARRAY);
                 if(jsonArray.length() == 0)

@@ -9,4 +9,5 @@ import java.util.ArrayList;
  */
 public interface IQuickSearchResult {
     void returnTrip(ArrayList<Trip> currentTrips);
+    void returnNoTripAvai();
 }

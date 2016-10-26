@@ -45,4 +45,9 @@ public class QuickSearchPresenter implements IQuickSearchPresenter, IQuickSearch
     public void returnTrip(ArrayList<Trip> currentTrips) {
         iQuickSearchView.returnTrip(currentTrips);
     }
+
+    @Override
+    public void returnNoTripAvai() {
+        iQuickSearchView.returnNoTripAvai();
+    }
 }

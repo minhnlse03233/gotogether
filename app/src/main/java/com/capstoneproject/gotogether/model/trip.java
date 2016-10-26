@@ -19,9 +19,10 @@ public class Trip {
     String listLatLng;
     boolean status;
     double distance;
+    double price;
 
     public Trip(){}
-    public Trip(int tripId, BigInteger userId, String title, String description, String date_start, int slot, double start_lat, double end_lat, double start_lng, double end_lng, String listLatLng, boolean status, double distance){
+    public Trip(int tripId, BigInteger userId, String title, String description, String date_start, int slot, double start_lat, double end_lat, double start_lng, double end_lng, String listLatLng, boolean status, double distance, double price){
         this.tripId = tripId;
         this.userId = userId;
         this.title = title;
@@ -35,6 +36,7 @@ public class Trip {
         this.listLatLng = listLatLng;
         this.status = status;
         this.distance = distance;
+        this.price = price;
     }
 
     public void setTripId(int tripId){
@@ -139,5 +141,13 @@ public class Trip {
 
     public double getDistance(){
         return distance;
+    }
+
+    public void setPrice(double price){
+        this.price = price;
+    }
+
+    public double getPrice(){
+        return price;
     }
 }

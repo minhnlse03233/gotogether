@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:layout_weight="0.66">
+
+
+        <EditText
+            android:id="@+id/autocomplete_places"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="9dp"
+            android:singleLine="true"
+            android:background="@drawable/edit_text_style"
+            android:textColorHint="@color/grey"
+            android:hint="Điểm Đi"
+
+
+            android:drawablePadding="9dp"
+            android:textColor="@android:color/primary_text_light" />
+        <!--android:drawableLeft="@drawable/search"-->
+        <ImageView
+            android:id="@+id/cross"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="26dp"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/cross"/>
+
+        <!--<ImageView-->
+            <!--android:id="@+id/search_icon"-->
+            <!--android:layout_width="16dp"-->
+            <!--android:layout_height="16dp"-->
+            <!--android:src="@drawable/search"-->
+            <!--android:layout_alignTop="@+id/cross"-->
+            <!--android:layout_alignLeft="@+id/autocomplete_places"-->
+            <!--android:layout_alignStart="@+id/autocomplete_places"-->
+            <!--android:layout_marginLeft="14dp"-->
+            <!--android:layout_marginStart="14dp" />-->
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:scrollbars="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/autocomplete_places"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>
